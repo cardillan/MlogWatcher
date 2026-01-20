@@ -36,14 +36,21 @@ class FileWatcherThread extends Thread {
     @Override
     public void run() {
         super.run();
-        Path targetFilePath = FileSystems.getDefault().getPath(this.targetFilePath).getParent();
+        Path targetFilePath = FileSystems.getDefault().getPath(this.targetFilePath);
         try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
             targetFilePath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+            Log.info("[MlogWatcher] watching directory " + targetFilePath);
             while (true) {
                 final WatchKey watchKey = watchService.take();
                 for (WatchEvent<?> event : watchKey.pollEvents()) {
-                    if (((Path) event.context()).endsWith("out.mlog")) {
-                        ProcessorUpdater.InsertLogic();
+                    String path = targetFilePath.resolve((Path)event.context()).toString();
+                    Log.info("[MlogWatcher] found modified file " + path);
+                    if (matchesExtension(path, Constants.Settings.mlogExtension)) {
+                        Log.info("[MlogWatcher] updating logic");
+                        ProcessorUpdater.insertLogicFromFile(path);
+                    } else if (matchesExtension(path, Constants.Settings.mschExtension)) {
+                        Log.info("[MlogWatcher] updating schematics");
+                        SchematicsUpdater.importSchematicsFromFile(path);
                     }
                 }
 
@@ -53,11 +60,16 @@ class FileWatcherThread extends Thread {
         } catch (IOException e) {
             throw new RuntimeException(e);
         } catch (InterruptedException e) {
-            Log.warn("mlog watcher's target file has been changed");
+            Log.warn("[MlogWatcher] directory has been changed");
         } catch (Exception e) {
-            Log.warn("mlog watcher's file watcher restarted");
+            Log.warn("[MlogWatcher] file watcher restarted");
             FileWatcher.startWatcherThread();
         }
     }
-}
 
+    private boolean matchesExtension(String path, String extensionKey) {
+        String extension = Core.settings.getString(extensionKey);
+        if (extension.isEmpty()) return false;
+        return path.endsWith("." + extension);
+    }
+}

@@ -1,6 +1,5 @@
 package mlogwatcher;
 
-import arc.Core;
 import arc.Events;
 import arc.files.Fi;
 import arc.graphics.g2d.Draw;
@@ -35,20 +34,20 @@ public class ProcessorUpdater {
         });
     }
 
-    public static void InsertLogic() {
-        String mlogPath = Core.settings.getString(Constants.Settings.mlogPath);
-        String asmCode = Fi.get(mlogPath).readString().replace("\r\n", "\n");
-        InsertLogic(asmCode);
+    public static void insertLogicFromFile(String path) {
+        String asmCode = Fi.get(path).readString();
+        insertLogic(asmCode);
     }
 
-    public static boolean InsertLogic(String asmCode) {
+    public static boolean insertLogic(String asmCode) {
         if (lastTappedLogicBuild == null) {
-            Log.warn("cannot find any selected logic block!");
+            Log.warn("[MlogWatcher] cannot find any selected logic block!");
             return false;
         }
 
         lastTappedLogicBuild.configure(LogicBlock.compress(asmCode, lastTappedLogicBuild.relativeConnections()));
         Fx.spawn.at(lastTappedLogicBuild.x, lastTappedLogicBuild.y);
+        Log.info("[MlogWatcher] successfully injected code into logic block");
         return true;
     }
 }

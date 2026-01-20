@@ -18,6 +18,7 @@ public class MlogServer extends WebSocketServer {
 
     public static final String STATUS_OK = "ok";
     public static final String STATUS_NO_PROCESSOR = "no_processor";
+    public static final String STATUS_SCHEMATIC_OK = "schematic_ok";
 
     MlogServer(int port) {
         super(new InetSocketAddress(port));
@@ -52,8 +53,12 @@ public class MlogServer extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        boolean processorAttached = ProcessorUpdater.InsertLogic(message);
-        conn.send(processorAttached ? STATUS_OK : STATUS_NO_PROCESSOR);
+        if (SchematicsUpdater.importSchematics(message)) {
+            conn.send(STATUS_SCHEMATIC_OK);
+        } else {
+            boolean processorAttached = ProcessorUpdater.insertLogic(message);
+            conn.send(processorAttached ? STATUS_OK : STATUS_NO_PROCESSOR);
+        }
     }
 
     @Override

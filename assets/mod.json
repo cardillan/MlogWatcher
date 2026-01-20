@@ -6,7 +6,7 @@
   "subtitle": "the MLog watcher mod",
   "version": "0.3v",
   "main": "mlogwatcher.MlogWatcher",
-  "minGameVersion": "146",
+  "minGameVersion": "154.2",
   "dependencies": [],
   "hidden": true,
   "java": true
