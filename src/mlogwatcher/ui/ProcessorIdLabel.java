@@ -1,4 +1,4 @@
-package mlogwatcher;
+package mlogwatcher.ui;
 
 import arc.Core;
 import arc.Events;

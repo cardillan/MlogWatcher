@@ -4,6 +4,7 @@ import arc.Core;
 import arc.scene.ui.Label;
 import arc.scene.ui.TextField;
 import mindustry.Vars;
+import mlogwatcher.websocket.MlogServer;
 
 public class Setting {
     public static void init() {

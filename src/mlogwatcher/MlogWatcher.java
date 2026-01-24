@@ -3,6 +3,8 @@ package mlogwatcher;
 import arc.Events;
 import mindustry.game.EventType;
 import mindustry.mod.Mod;
+import mlogwatcher.ui.ProcessorIdLabel;
+import mlogwatcher.websocket.MlogServer;
 
 public class MlogWatcher extends Mod {
     public MlogWatcher() {

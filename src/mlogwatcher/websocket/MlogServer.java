@@ -1,27 +1,34 @@
-package mlogwatcher;
+package mlogwatcher.websocket;
 
 import arc.Core;
 import arc.input.KeyCode;
 import arc.scene.ui.Dialog;
 import arc.util.Log;
 import arc.util.Nullable;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import mlogwatcher.Constants;
+import mlogwatcher.ProcessorUpdater;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;
 
 import java.net.BindException;
 import java.net.InetSocketAddress;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MlogServer extends WebSocketServer {
     @Nullable
     private static MlogServer server;
 
-    public static final String STATUS_OK = "ok";
-    public static final String STATUS_NO_PROCESSOR = "no_processor";
-    public static final String STATUS_SCHEMATIC_OK = "schematic_ok";
+    private final Map<String, MethodHandler> handlers = new HashMap<>();
 
     MlogServer(int port) {
         super(new InetSocketAddress(port));
+
+        handlers.put(UpdateSelectedProcessorHandler.METHOD_NAME, new UpdateSelectedProcessorHandler());
+        handlers.put(PutSchematicInLibraryHandler.METHOD_NAME, new PutSchematicInLibraryHandler());
     }
 
     public static void startServer() {
@@ -53,11 +60,44 @@ public class MlogServer extends WebSocketServer {
 
     @Override
     public void onMessage(WebSocket conn, String message) {
-        if (SchematicsUpdater.importSchematics(message)) {
-            conn.send(STATUS_SCHEMATIC_OK);
+        String path = conn.getResourceDescriptor();
+
+        if (path.equals("/")) {
+            handleLegacyMessage(conn, message);
+        } else if (path.equals("/v1")) {
+            handleMessage(conn, message);
         } else {
-            boolean processorAttached = ProcessorUpdater.insertLogic(message);
-            conn.send(processorAttached ? STATUS_OK : STATUS_NO_PROCESSOR);
+            Log.err("[MlogWatcher] unknown websocket path: " + path);
+        }
+    }
+
+    // Legacy
+    public static final String STATUS_OK = "ok";
+    public static final String STATUS_NO_PROCESSOR = "no_processor";
+
+    private void handleLegacyMessage(WebSocket conn, String message) {
+        boolean processorAttached = ProcessorUpdater.insertLogic(message);
+        conn.send(processorAttached ? STATUS_OK : STATUS_NO_PROCESSOR);
+    }
+
+    private void handleMessage(WebSocket conn, String message) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            Response response;
+            Request request = mapper.readValue(message, Request.class);
+
+            MethodHandler handler = handlers.get(request.getMethod());
+            if (handler == null) {
+                Log.err("[MlogWatcher] unknown method " + request.getMethod());
+                response = Response.error("unknown method");
+            } else {
+                response = handler.handle(request);
+            }
+
+            response.setInvocationId(request.getInvocationId());
+            conn.send(mapper.writeValueAsString(response));
+        } catch (JsonProcessingException e) {
+            Log.err("[MlogWatcher] json processing error", e);
         }
     }
 

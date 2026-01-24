@@ -1,7 +1,7 @@
 package mlogwatcher;
 
 public class Constants {
-    static class Bundles {
+    public static class Bundles {
         public static final String settingTitle = "@mlogwatcher.setting.title";
         public static final String settingMlogPathLabel = "@mlogwatcher.setting.mlogLabel";
         public static final String settingMlogSelectButton = "@mlogwatcher.setting.mlogSelectButton";
@@ -16,7 +16,7 @@ public class Constants {
         public static final String infoServerBindError = "@mlogwatcher.info.serverBindError";
     }
 
-    static class Settings {
+    public static class Settings {
         public static final String mlogPath = "mlogwatcher-mlog-path";
         public static final String mlogExtension = "mlogwatcher-mlog-extension";
         public static final String mschExtension = "mlogwatcher-msch-extension";

@@ -18,7 +18,7 @@ public class SchematicsUpdater {
         try {
             Schematic schematic = Schematics.read(Fi.get(path));
             schematic.file = null;      // We don't want to keep a reference to this file
-            updateSchematics(schematic);
+            updateSchematics(schematic, true);
             return true;
         } catch (Throwable th) {
             Log.err("[MlogWatcher] error loading schematics from file " + path, th);
@@ -26,30 +26,32 @@ public class SchematicsUpdater {
         }
     }
 
-    public static boolean importSchematics(String encodedSchematics) {
+    public static boolean importSchematics(String encodedSchematics, boolean overwrite) {
         // The schematics file starts with "msch", which, encoded, gives this prefix
         if (!encodedSchematics.startsWith("bXNjaA")) return false;
 
         try {
             Schematic schematic = Schematics.readBase64(encodedSchematics);
-            updateSchematics(schematic);
+            updateSchematics(schematic, overwrite);
             return true;
-        } catch (Exception th) {
-            Log.err("[MlogWatcher] error decoding schematics from message", th);
+        } catch (Exception e) {
+            Log.err("[MlogWatcher] error decoding schematics from message", e);
             return false;
         }
     }
 
-    private static void updateSchematics(Schematic schematic) {
+    private static void updateSchematics(Schematic schematic, boolean overwrite) {
         Core.app.post(() -> {
             try {
                 schematic.removeSteamID();
                 schematic.labels.add(mlogWatcherTag);
 
-                Schematic existing = Vars.schematics.all()
-                        .find(s -> s.name().equals(schematic.name()) && s.labels.contains(mlogWatcherTag));
-                if (existing != null) {
-                    Vars.schematics.remove(existing);
+                if (overwrite) {
+                    Schematic existing = Vars.schematics.all()
+                            .find(s -> s.name().equals(schematic.name()) && s.labels.contains(mlogWatcherTag));
+                    if (existing != null) {
+                        Vars.schematics.remove(existing);
+                    }
                 }
 
                 Vars.schematics.add(schematic);
