@@ -17,5 +17,7 @@ public class MlogWatcher extends Mod {
             FileWatcher.stopWatcherThread();
             MlogServer.stopServer();
         });
+
+        ProcessorIdLabel.init();
     }
 }
