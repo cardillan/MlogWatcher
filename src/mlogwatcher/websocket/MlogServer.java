@@ -27,8 +27,8 @@ public class MlogServer extends WebSocketServer {
     MlogServer(int port) {
         super(new InetSocketAddress(port));
 
-        handlers.put(UpdateSelectedProcessorHandler.METHOD_NAME, new UpdateSelectedProcessorHandler());
-        handlers.put(PutSchematicInLibraryHandler.METHOD_NAME, new PutSchematicInLibraryHandler());
+        handlers.put(Request.UPDATE_SELECTED_PROCESSOR, new UpdateSelectedProcessorHandler());
+        handlers.put(Request.PUT_SCHEMATIC_IN_LIBRARY, new PutSchematicInLibraryHandler());
     }
 
     public static void startServer() {
@@ -89,7 +89,7 @@ public class MlogServer extends WebSocketServer {
             MethodHandler handler = handlers.get(request.getMethod());
             if (handler == null) {
                 Log.err("[MlogWatcher] unknown method " + request.getMethod());
-                response = Response.error("unknown method");
+                response = Response.error(Response.ERR_UNKNOWN_METHOD);
             } else {
                 response = handler.handle(request);
             }

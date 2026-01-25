@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 public class Request {
+    public static final String UPDATE_SELECTED_PROCESSOR = "update_selected_processor";
+    public static final String PUT_SCHEMATIC_IN_LIBRARY = "put_schematic_in_library";
 
     private String method;
 
@@ -23,11 +25,11 @@ public class Request {
     @JsonSubTypes({
             @JsonSubTypes.Type(
                     value = UpdateSelectedProcessorParams.class,
-                    name = UpdateSelectedProcessorHandler.METHOD_NAME
+                    name = UPDATE_SELECTED_PROCESSOR
             ),
             @JsonSubTypes.Type(
                     value = PutSchematicInLibraryParams.class,
-                    name = PutSchematicInLibraryHandler.METHOD_NAME
+                    name = PUT_SCHEMATIC_IN_LIBRARY
             )
     })
     private Params params;
