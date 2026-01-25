@@ -9,12 +9,16 @@ public class Response {
     public static final String STATUS_ERROR = "error";
 
     public static final String ERR_INVALID_ARGUMENTS = "invalid_arguments";
+    public static final String ERR_INVALID_PROGRAM_ID = "invalid_program_id";
     public static final String ERR_NO_PROCESSOR_ATTACHED = "no_processor_attached";
+    public static final String ERR_NO_ACTIVE_MAP = "no_active_map";
+    public static final String ERR_NO_PROCESSORS_FOUND = "no_processors_found";
     public static final String ERR_SCHEMATIC_IMPORT_FAILED = "schematic_import_failed";
     public static final String ERR_UNKNOWN_METHOD = "unknown_method";
     public static final String ERR_INTERNAL_ERROR = "internal_error";
 
     public static final String RESULT_TYPE_TEXT = "text_result";
+    public static final String RESULT_TYPE_PROCESSOR_UPDATE = "processor_update_result";
 
     private String status;
 
@@ -34,6 +38,10 @@ public class Response {
             @JsonSubTypes.Type(
                     value = TextResult.class,
                     name = RESULT_TYPE_TEXT
+            ),
+            @JsonSubTypes.Type(
+                    value = ProcessorUpdateResults.class,
+                    name = RESULT_TYPE_PROCESSOR_UPDATE
             )
     })
     private Results result;
@@ -48,12 +56,28 @@ public class Response {
         this.result = result;
     }
 
+    public Response(String status) {
+        this(status, 0, RESULT_TYPE_TEXT, null);
+    }
+
+    public Response(String status, String resultType, Results result) {
+        this(status, 0, resultType, result);
+    }
+
     public Response(String status, String result) {
         this(status, 0, RESULT_TYPE_TEXT, new TextResult(result));
     }
 
     public static Response success() {
-        return new Response(STATUS_SUCCESS, null);
+        return new Response(STATUS_SUCCESS);
+    }
+
+    public static Response success(String result) {
+        return new Response(STATUS_SUCCESS, result);
+    }
+
+    public static Response success(String resultType, Results result) {
+        return new Response(STATUS_SUCCESS, resultType, result);
     }
 
     public static Response error(String result) {

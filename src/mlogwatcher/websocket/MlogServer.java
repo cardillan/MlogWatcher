@@ -31,6 +31,7 @@ public class MlogServer extends WebSocketServer {
         super(new InetSocketAddress(port));
 
         handlers.put(Request.UPDATE_SELECTED_PROCESSOR, new UpdateSelectedProcessorHandler());
+        handlers.put(Request.UPGRADE_ALL_PROCESSORS_ON_MAP, new UpgradeAllProcessorsOnMapHandler());
         handlers.put(Request.PUT_SCHEMATIC_IN_LIBRARY, new PutSchematicInLibraryHandler());
     }
 
@@ -116,7 +117,9 @@ public class MlogServer extends WebSocketServer {
             if (th instanceof JsonProcessingException) {
                 try {
                     Map<String, Object> map = mapper.readValue(message, new TypeReference<>() {});
-                    if (map.containsKey("method") && map.containsKey("invocation_id")) {
+                    //noinspection SuspiciousMethodCalls
+                    if (map.containsKey("method") && map.containsKey("invocation_id")
+                            && !handlers.containsKey(map.get("method"))) {
                         Log.err("[MlogWatcher] unknown method " + map.get("method"));
                         sendResponse(conn, Response.error(Response.ERR_UNKNOWN_METHOD), (int) map.get("invocation_id"));
                         return null;
