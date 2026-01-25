@@ -9,7 +9,7 @@ public class UpdateSelectedProcessorParams implements Params {
 
     public String getCode() {
         byte[] bytes = Base64.getDecoder().decode(code);
-        return new String(bytes);
+        return new String(bytes, StandardCharsets.UTF_8);
     }
 
     public void setCode(String code) {
