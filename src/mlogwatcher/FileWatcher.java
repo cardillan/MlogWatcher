@@ -47,10 +47,10 @@ class FileWatcherThread extends Thread {
                     Log.info("[MlogWatcher] found modified file " + path);
                     if (matchesExtension(path, Constants.Settings.mlogExtension)) {
                         Log.info("[MlogWatcher] updating logic");
-                        ProcessorUpdater.insertLogicFromFile(path);
+                        Core.app.post(() -> ProcessorUpdater.insertLogicFromFile(path));
                     } else if (matchesExtension(path, Constants.Settings.mschExtension)) {
                         Log.info("[MlogWatcher] updating schematics");
-                        SchematicsUpdater.importSchematicsFromFile(path);
+                        Core.app.post(() -> SchematicsUpdater.importSchematicsFromFile(path));
                     }
                 }
 

@@ -6,12 +6,9 @@ import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Lines;
 import arc.util.Log;
 import arc.util.Nullable;
-import mindustry.Vars;
 import mindustry.content.Fx;
-import mindustry.core.World;
 import mindustry.game.EventType;
 import mindustry.graphics.Pal;
-import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
 
 public class ProcessorUpdater {

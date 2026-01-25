@@ -12,6 +12,7 @@ public class Response {
     public static final String ERR_NO_PROCESSOR_ATTACHED = "no_processor_attached";
     public static final String ERR_SCHEMATIC_IMPORT_FAILED = "schematic_import_failed";
     public static final String ERR_UNKNOWN_METHOD = "unknown_method";
+    public static final String ERR_INTERNAL_ERROR = "internal_error";
 
     public static final String RESULT_TYPE_TEXT = "text_result";
 

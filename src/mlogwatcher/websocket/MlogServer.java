@@ -6,6 +6,7 @@ import arc.scene.ui.Dialog;
 import arc.util.Log;
 import arc.util.Nullable;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mlogwatcher.Constants;
 import mlogwatcher.ProcessorUpdater;
@@ -63,9 +64,9 @@ public class MlogServer extends WebSocketServer {
         String path = conn.getResourceDescriptor();
 
         if (path.equals("/")) {
-            handleLegacyMessage(conn, message);
+            Core.app.post(() -> handleLegacyMessage(conn, message));
         } else if (path.equals("/v1")) {
-            handleMessage(conn, message);
+            Core.app.post(() -> handleMessage(conn, message));
         } else {
             Log.err("[MlogWatcher] unknown websocket path: " + path);
         }
@@ -81,23 +82,60 @@ public class MlogServer extends WebSocketServer {
     }
 
     private void handleMessage(WebSocket conn, String message) {
-        try {
-            ObjectMapper mapper = new ObjectMapper();
-            Response response;
-            Request request = mapper.readValue(message, Request.class);
+        Request request = decodeRequest(conn, message);
+        if (request == null) return;
 
-            MethodHandler handler = handlers.get(request.getMethod());
-            if (handler == null) {
-                Log.err("[MlogWatcher] unknown method " + request.getMethod());
-                response = Response.error(Response.ERR_UNKNOWN_METHOD);
-            } else {
+        Response response;
+
+        MethodHandler handler = handlers.get(request.getMethod());
+        if (handler == null) {
+            Log.err("[MlogWatcher] unhandled method " + request.getMethod());
+            response = Response.error(Response.ERR_UNKNOWN_METHOD);
+        } else {
+            try {
                 response = handler.handle(request);
+            } catch (Throwable th) {
+                Log.err("[MlogWatcher] websocket request processing error", th);
+                response = Response.error(Response.ERR_INTERNAL_ERROR);
+            }
+        }
+
+        sendResponse(conn, response, request.getInvocationId());
+    }
+
+    // Not thread safe
+    // All requests are processed on the main thread though
+    private final ObjectMapper mapper = new ObjectMapper();
+
+    private Request decodeRequest(WebSocket conn, String message) {
+        try {
+            return mapper.readValue(message, Request.class);
+        } catch (Throwable th) {
+            if (th instanceof JsonProcessingException) {
+                try {
+                    Map<String, Object> map = mapper.readValue(message, new TypeReference<>() {});
+                    if (map.containsKey("method") && map.containsKey("invocation_id")) {
+                        Log.err("[MlogWatcher] unknown method " + map.get("method"));
+                        sendResponse(conn, Response.error(Response.ERR_UNKNOWN_METHOD), (int) map.get("invocation_id"));
+                        return null;
+                    }
+                } catch (Throwable ignored) {
+                    // No need to report a failed salvage operation
+                }
             }
 
-            response.setInvocationId(request.getInvocationId());
+            Log.err("[MlogWatcher] websocket message decoding error", th);
+        }
+
+        return null;
+    }
+
+    private void sendResponse(WebSocket conn, Response response, int invocationId) {
+        try {
+            response.setInvocationId(invocationId);
             conn.send(mapper.writeValueAsString(response));
-        } catch (JsonProcessingException e) {
-            Log.err("[MlogWatcher] json processing error", e);
+        } catch (Throwable th) {
+            Log.err("[MlogWatcher] error sending response", th);
         }
     }
 
@@ -107,7 +145,7 @@ public class MlogServer extends WebSocketServer {
 
         if (ex instanceof BindException) {
             boolean ignore = Core.settings.getBool(Constants.Settings.ignoreServerBindError);
-            if(ignore) return;
+            if (ignore) return;
 
             (new Dialog(Constants.Bundles.infoServerBindErrorTitle) {
                 {
