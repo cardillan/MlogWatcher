@@ -1,6 +1,5 @@
 package mlogwatcher;
 
-import arc.Core;
 import arc.files.Fi;
 import arc.util.Log;
 import mindustry.Vars;

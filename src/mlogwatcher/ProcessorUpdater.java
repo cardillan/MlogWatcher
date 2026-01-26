@@ -17,7 +17,7 @@ public class ProcessorUpdater {
 
     public static void init() {
         Events.on(EventType.TapEvent.class, e -> {
-            if (e.tile.build instanceof LogicBlock.LogicBuild logicBuild) {
+            if (e.tile.build instanceof LogicBlock.LogicBuild logicBuild && accessible(logicBuild)) {
                 lastTappedLogicBuild = logicBuild;
             } else {
                 lastTappedLogicBuild = null;
@@ -34,13 +34,17 @@ public class ProcessorUpdater {
         });
     }
 
+    public static boolean accessible(LogicBlock.LogicBuild logicBuild) {
+        return ((LogicBlock)logicBuild.block).accessible();
+    }
+
     public static void insertLogicFromFile(String path) {
         String asmCode = Fi.get(path).readString();
         insertLogic(asmCode);
     }
 
     public static boolean insertLogic(String asmCode) {
-        if (lastTappedLogicBuild == null || lastTappedLogicBuild.dead) {
+        if (lastTappedLogicBuild == null || lastTappedLogicBuild.dead || !accessible(lastTappedLogicBuild)) {
             Log.warn("[MlogWatcher] cannot find any selected logic block!");
             return false;
         }
