@@ -8,8 +8,11 @@ import mlogwatcher.websocket.MlogServer;
 
 public class MlogWatcher extends Mod {
     public MlogWatcher() {
+        ProcessorIdLabel.init();
+
         Events.on(EventType.ClientLoadEvent.class, e -> {
             Setting.init();
+            ProcessorIdLabel.updateVariables();
             ProcessorUpdater.init();
             FileWatcher.startWatcherThread();
             MlogServer.startServer();
@@ -19,7 +22,5 @@ public class MlogWatcher extends Mod {
             FileWatcher.stopWatcherThread();
             MlogServer.stopServer();
         });
-
-        ProcessorIdLabel.init();
     }
 }

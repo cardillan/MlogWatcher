@@ -5,15 +5,20 @@ import arc.Events;
 import arc.graphics.g2d.Font;
 import arc.graphics.g2d.GlyphLayout;
 import arc.scene.ui.layout.Scl;
+import arc.struct.Seq;
 import arc.util.pooling.Pools;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.gen.WorldLabel;
+import mindustry.logic.LExecutor;
 import mindustry.logic.LVar;
 import mindustry.ui.Fonts;
 import mindustry.world.blocks.logic.LogicBlock;
+import mlogwatcher.Constants;
 
 public class ProcessorIdLabel {
+    public static Seq<String> variables = new Seq<>();
+
     static WorldLabel label;
 
     public static void init() {
@@ -27,15 +32,25 @@ public class ProcessorIdLabel {
             float y = Core.input.mouseWorldY();
 
             if (Vars.world.buildWorld(x, y) instanceof LogicBlock.LogicBuild processor) {
-                LVar lVar = processor.executor.optionalVar("*id");
-                if (lVar != null && lVar.isobj &&lVar.objval instanceof String text && !text.isEmpty()) {
-                    updateLabel(processor, text);
-                    return;
+                for (String variable : variables) {
+                    LVar lVar = processor.executor.optionalVar(variable);
+                    if (lVar != null && lVar.isobj && lVar.objval instanceof String text && !text.isEmpty()) {
+                        updateLabel(processor, text);
+                        return;
+                    }
                 }
             }
 
             label.remove();
         });
+    }
+
+    public static void updateVariables() {
+        String[] list = Core.settings.getString(Constants.Settings.processorTagVariables, "*id").split(" ");
+        variables.clear();
+        for (String variable : list) {
+            variables.add(variable);
+        }
     }
 
     static LogicBlock.LogicBuild lastBuild;

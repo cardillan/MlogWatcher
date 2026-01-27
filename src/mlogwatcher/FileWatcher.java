@@ -12,8 +12,9 @@ public class FileWatcher {
     private static Thread fileWatcherThread;
 
     public static void startWatcherThread() {
-        if (fileWatcherThread != null) return;
-        fileWatcherThread = new FileWatcherThread(Core.settings.getString(Constants.Settings.mlogPath));
+        String path = Core.settings.getString(Constants.Settings.mlogPath);
+        if (fileWatcherThread != null || path.isEmpty()) return;
+        fileWatcherThread = new FileWatcherThread(path);
         fileWatcherThread.start();
     }
 

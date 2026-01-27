@@ -1,33 +1,51 @@
 package mlogwatcher;
 
 import arc.Core;
-import arc.scene.ui.Label;
+import arc.graphics.Color;
 import arc.scene.ui.TextField;
+import arc.scene.ui.layout.Table;
 import mindustry.Vars;
+import mindustry.gen.Icon;
+import mlogwatcher.ui.ProcessorIdLabel;
 import mlogwatcher.websocket.MlogServer;
 
+import static arc.Core.bundle;
+
 public class Setting {
+    private static final int columns = 2;
+    
     public static void init() {
         Core.settings.defaults(
-                Constants.Settings.mlogPath, "[lightgray]@none[]",
+                Constants.Settings.mlogPath, "",
                 Constants.Settings.mlogExtension, "mlog",
                 Constants.Settings.mschExtension, "msch",
-                Constants.Settings.websocketPort, 9992
+                Constants.Settings.websocketPort, 9992,
+                Constants.Settings.processorTagVariables, "*tag *id"
         );
 
-        Vars.ui.settings.addCategory("Mlog Watcher", t -> {
-            Label label = new Label(() -> Core.settings.getString(Constants.Settings.mlogPath));
-            label.setFontScale(0.75f);
+        Vars.ui.settings.addCategory("Mlog Watcher", Icon.logic, t -> {
+            category(t, Constants.Bundles.settingsFileWatcher, true);
 
-            t.add(Constants.Bundles.settingMlogPathLabel).left().colspan(2).row();
-            t.add(label).left().colspan(2).row();
+            t.add(Constants.Bundles.settingMlogPathLabel).left().colspan(columns).row();
+            TextField watchedDirectory = new TextField();
+            watchedDirectory.setMessageText(Constants.Bundles.settingNoPathSelected);
+            watchedDirectory.update(() -> watchedDirectory.setText(String.valueOf(Core.settings.getString(Constants.Settings.mlogPath))));
+            watchedDirectory.changed(() -> {
+                Core.settings.put(Constants.Settings.mlogPath, watchedDirectory.getText());
+                FileWatcher.stopWatcherThread();
+                FileWatcher.startWatcherThread();
+            });
+            t.add(watchedDirectory).colspan(columns).left().growX().row();
+
             t.button(Constants.Bundles.settingMlogSelectButton, () -> {
                 Vars.platform.showFileChooser(true, Constants.Bundles.settingFileChooserTitle, "*", fi -> {
-                    Core.settings.put(Constants.Settings.mlogPath, fi.parent().absolutePath());
+                    String path = fi.parent().absolutePath();
+                    Core.settings.put(Constants.Settings.mlogPath, path);
                     FileWatcher.stopWatcherThread();
                     FileWatcher.startWatcherThread();
+                    watchedDirectory.setText(path);
                 });
-            }).height(60f).pad(16f).colspan(2).fill().row();
+            }).height(60f).pad(16f).colspan(columns).width(t.getWidth()).fill().row();
 
             TextField mlogExtField = new TextField();
             mlogExtField.update(() -> mlogExtField.setText(Core.settings.getString(Constants.Settings.mlogExtension)));
@@ -45,6 +63,8 @@ public class Setting {
             t.add(Constants.Bundles.settingMschExtensionInputLabel).left();
             t.add(mschExtField).row();
 
+            category(t, Constants.Bundles.settingsWebSocket, false);
+
             TextField portTextField = new TextField();
             portTextField.update(() -> portTextField.setText(String.valueOf(Core.settings.getInt(Constants.Settings.websocketPort))));
             portTextField.changed(() -> {
@@ -52,7 +72,6 @@ public class Setting {
                     int port = Integer.parseInt(portTextField.getText());
                     Core.settings.put(Constants.Settings.websocketPort, port);
                 } catch (NumberFormatException ignored) {
-
                 }
             });
 
@@ -60,14 +79,29 @@ public class Setting {
             t.add(portTextField);
             t.row();
 
+            t.left();
+            t.check(Constants.Bundles.settingIgnoreServerBindError, (checked) -> {
+                Core.settings.put(Constants.Settings.ignoreServerBindError, checked);
+            }).colspan(columns).growX().left()
+                    .checked(x -> Core.settings.getBool(Constants.Settings.ignoreServerBindError)).row();
+            t.center();
+
             t.button(Constants.Bundles.settingRestartServerButton, () -> {
                 MlogServer.stopServer();
                 MlogServer.startServer();
-            }).height(60f).pad(16f).colspan(2).fill().row();
+            }).height(60f).pad(16f).colspan(columns).growX().row();
 
-            t.check(Constants.Bundles.settingIgnoreServerBindError, (checked) -> {
-                Core.settings.put(Constants.Settings.ignoreServerBindError, checked);
-            }).colspan(2).fill().checked((x) -> Core.settings.getBool(Constants.Settings.ignoreServerBindError)).row();
+            category(t, Constants.Bundles.settingsProcessorId, false);
+
+            t.add(Constants.Bundles.settingProcessorTagVariables).colspan(columns).left().row();
+            TextField processorIds = new TextField();
+            processorIds.update(() -> processorIds.setText(String.valueOf(Core.settings.getString(Constants.Settings.processorTagVariables))));
+            processorIds.changed(() -> {
+                Core.settings.put(Constants.Settings.processorTagVariables, processorIds.getText());
+                ProcessorIdLabel.updateVariables();
+            });
+            processorIds.setWidth(t.getWidth());
+            t.add(processorIds).colspan(columns).left().growX().row();
 
             t.button("@settings.reset", () -> {
                 Core.settings.remove(Constants.Settings.mlogPath);
@@ -75,7 +109,16 @@ public class Setting {
                 Core.settings.remove(Constants.Settings.mschExtension);
                 Core.settings.remove(Constants.Settings.websocketPort);
                 Core.settings.remove(Constants.Settings.ignoreServerBindError);
-            }).margin(14).width(240f).pad(6).colspan(2).row();
+            }).margin(14).width(240f).pad(6).padTop(12).colspan(columns).row();
         });
+    }
+
+    private static void category(Table t, String key, boolean first) {
+        t.add(bundle.get(key, ""))
+                .left()
+                .color(Color.gray)
+                .colspan(columns).pad(10).padTop(first ? 0 : 40).padBottom(4).row();
+        t.image().color(Color.gray).fillX().height(3)
+                .pad(0).colspan(columns).padTop(0).padBottom(20).row();
     }
 }
