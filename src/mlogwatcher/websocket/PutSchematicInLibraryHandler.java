@@ -2,6 +2,9 @@ package mlogwatcher.websocket;
 
 import arc.util.Log;
 import mlogwatcher.SchematicsUpdater;
+import mlogwatcher.websocket.api.PutSchematicInLibraryParams;
+import mlogwatcher.websocket.api.Request;
+import mlogwatcher.websocket.api.Response;
 
 public class PutSchematicInLibraryHandler implements MethodHandler {
     @Override

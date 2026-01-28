@@ -10,6 +10,8 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mlogwatcher.Constants;
 import mlogwatcher.ProcessorUpdater;
+import mlogwatcher.websocket.api.Request;
+import mlogwatcher.websocket.api.Response;
 import org.java_websocket.WebSocket;
 import org.java_websocket.handshake.ClientHandshake;
 import org.java_websocket.server.WebSocketServer;

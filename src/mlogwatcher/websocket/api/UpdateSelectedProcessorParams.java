@@ -1,4 +1,4 @@
-package mlogwatcher.websocket;
+package mlogwatcher.websocket.api;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;

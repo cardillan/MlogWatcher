@@ -1,4 +1,4 @@
-package mlogwatcher.websocket;
+package mlogwatcher.websocket.api;
 
 public class PutSchematicInLibraryParams implements Params {
 

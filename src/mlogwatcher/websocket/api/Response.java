@@ -1,4 +1,4 @@
-package mlogwatcher.websocket;
+package mlogwatcher.websocket.api;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSubTypes;

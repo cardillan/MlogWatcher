@@ -1,4 +1,4 @@
-package mlogwatcher.websocket;
+package mlogwatcher.websocket.api;
 
 public class TextResult implements Results {
     private String text;

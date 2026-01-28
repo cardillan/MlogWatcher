@@ -1,6 +1,7 @@
 package mlogwatcher;
 
 import arc.files.Fi;
+import arc.struct.Seq;
 import arc.util.Log;
 import mindustry.Vars;
 import mindustry.core.GameState;
@@ -37,6 +38,20 @@ public class SchematicsUpdater {
         }
     }
 
+    private static boolean isMlogWatcherSchematic(Schematic schematic) {
+        return schematic.labels.contains(mlogWatcherTag);
+    }
+
+    public static int numberOfSchematics() {
+        return Vars.schematics.all().count(SchematicsUpdater::isMlogWatcherSchematic);
+    }
+
+    public static void purgeSchematics() {
+        Seq<Schematic> purgeSeq = new Seq<>();
+        Vars.schematics.all().each(SchematicsUpdater::isMlogWatcherSchematic, purgeSeq::add);
+        purgeSeq.each(s -> Vars.schematics.remove(s));
+    }
+
     private static void updateSchematics(Schematic schematic, boolean overwrite) {
         try {
             schematic.removeSteamID();
@@ -44,7 +59,7 @@ public class SchematicsUpdater {
 
             if (overwrite) {
                 Schematic existing = Vars.schematics.all()
-                        .find(s -> s.name().equals(schematic.name()) && s.labels.contains(mlogWatcherTag));
+                        .find(s -> s.name().equals(schematic.name()) && isMlogWatcherSchematic(s));
                 if (existing != null) {
                     Vars.schematics.remove(existing);
                 }
@@ -66,6 +81,7 @@ public class SchematicsUpdater {
                 checkTags.invoke(dialog, schematic);
             }
 
+            Settings.update();
             if (Vars.state.is(GameState.State.playing)) {
                 Vars.ui.showInfoToast("Imported schematic [gold]" + schematic.name(), 2);
             } else {

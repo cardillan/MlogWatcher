@@ -1,8 +1,17 @@
 package mlogwatcher;
 
 public class Constants {
-    public static class Bundles {
+    // Direct bundle references (without the "@" prefix)
+    public static class DirectBundles {
         public static final String settingsFileWatcher = "mlogwatcher.setting.fileWatcher";
+        public static final String settingsWebSocket = "mlogwatcher.setting.websocket";
+        public static final String settingsProcessorId = "mlogwatcher.setting.processorId";
+        public static final String schematicLibrary = "mlogwatcher.setting.schematicLibrary";
+        public static final String numberOfSchematics = "mlogwatcher.setting.numberOfSchematics";
+    }
+
+
+    public static class Bundles {
         public static final String settingMlogPathLabel = "@mlogwatcher.setting.mlogLabel";
         public static final String settingNoPathSelected = "@mlogwatcher.setting.noPath";
         public static final String settingMlogSelectButton = "@mlogwatcher.setting.mlogSelectButton";
@@ -11,13 +20,14 @@ public class Constants {
         public static final String settingMschExtensionInputLabel = "@mlogwatcher.setting.mschExtensionInputLabel";
         public static final String settingNoExt = "@mlogwatcher.setting.noExtension";
 
-        public static final String settingsWebSocket = "mlogwatcher.setting.websocket";
         public static final String settingWebsocketPortLabel = "@mlogwatcher.setting.websocketPortLabel";
         public static final String settingRestartServerButton = "@mlogwatcher.setting.restartServerButton";
         public static final String settingIgnoreServerBindError = "@mlogwatcher.setting.ignoreServerBindError";
 
-        public static final String settingsProcessorId = "mlogwatcher.setting.processorId";
         public static final String settingProcessorTagVariables = "@mlogwatcher.setting.processorTagVariables";
+
+        public static final String purgeSchematics = "@mlogwatcher.setting.purgeSchematics";
+        public static final String purgeSchematicsPrompt = "@mlogwatcher.setting.purgeSchematicsPrompt";
 
         public static final String infoServerBindErrorTitle = "@mlogwatcher.info.serverBindErrorTitle";
         public static final String infoServerBindError = "@mlogwatcher.info.serverBindError";

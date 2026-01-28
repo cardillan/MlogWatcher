@@ -2,6 +2,9 @@ package mlogwatcher.websocket;
 
 import arc.util.Log;
 import mlogwatcher.ProcessorUpdater;
+import mlogwatcher.websocket.api.Request;
+import mlogwatcher.websocket.api.Response;
+import mlogwatcher.websocket.api.UpdateSelectedProcessorParams;
 
 public class UpdateSelectedProcessorHandler implements MethodHandler {
     @Override

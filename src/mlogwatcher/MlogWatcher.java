@@ -11,7 +11,7 @@ public class MlogWatcher extends Mod {
         ProcessorIdLabel.init();
 
         Events.on(EventType.ClientLoadEvent.class, e -> {
-            Setting.init();
+            Settings.init();
             ProcessorIdLabel.updateVariables();
             ProcessorUpdater.init();
             FileWatcher.startWatcherThread();
