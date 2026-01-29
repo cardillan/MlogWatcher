@@ -44,7 +44,7 @@ public class ProcessorUpdater {
     }
 
     public static boolean accessible(LogicBlock.LogicBuild logicBuild) {
-        return ((LogicBlock)logicBuild.block).accessible();
+        return ((LogicBlock) logicBuild.block).accessible();
     }
 
     public static void insertLogicFromFile(String path) {
@@ -68,13 +68,17 @@ public class ProcessorUpdater {
         return true;
     }
 
-    public static ProcessorUpdateResults updateAllProcessorsOnMap(String asmCode, ProgramId newId, String variableName) {
+    public enum VersionSelection {exact, compatible, any}
+
+    public static ProcessorUpdateResults updateAllProcessorsOnMap(String asmCode, ProgramId newId, String variableName,
+            VersionSelection versionSelection) {
         List<LogicProcessor> updates = new ArrayList<>();
-        Vars.world.tiles.eachTile(tile -> updateTile(tile, asmCode, newId, variableName, updates));
+        Vars.world.tiles.eachTile(tile -> updateTile(tile, asmCode, newId, variableName, versionSelection, updates));
         return new ProcessorUpdateResults(updates);
     }
 
-    private static void updateTile(Tile tile, String asmCode, ProgramId newId, String variableName, List<LogicProcessor> updates) {
+    private static void updateTile(Tile tile, String asmCode, ProgramId newId, String variableName,
+            VersionSelection versionSelection, List<LogicProcessor> updates) {
         if (tile.build instanceof LogicBlock.LogicBuild logicBuild && accessible(logicBuild)) {
             LVar lVar = logicBuild.executor.optionalVar(variableName);
             if (lVar != null && lVar.obj() instanceof String id) {
@@ -84,7 +88,7 @@ public class ProcessorUpdater {
                 if (oldId == null) {
                     updateStatus = LogicProcessor.MISSING_PROGRAM_ID;
                 } else if (oldId.getIdPrefix().equals(newId.getIdPrefix())) {
-                    if (oldId.shouldUpdate(newId)) {
+                    if (shouldUpdate(oldId, newId, versionSelection)) {
                         insertLogic(logicBuild, asmCode);
                         updateStatus = LogicProcessor.UPDATED;
                     } else {
@@ -97,5 +101,13 @@ public class ProcessorUpdater {
                 updates.add(new LogicProcessor(logicBuild.tile.x, logicBuild.tile.y, logicBuild.block.name, oldId, updateStatus));
             }
         }
+    }
+
+    public static boolean shouldUpdate(ProgramId oldId, ProgramId newId, VersionSelection versionSelection) {
+        return oldId.getIdPrefix().equals(newId.getIdPrefix()) && switch (versionSelection) {
+            case exact -> oldId.exactVersionMatch(newId);
+            case compatible -> oldId.compatibleVersionMatch(newId);
+            case any -> true;
+        };
     }
 }
