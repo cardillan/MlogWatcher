@@ -2,6 +2,7 @@ package mlogwatcher;
 
 import arc.Events;
 import arc.files.Fi;
+import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.Lines;
 import arc.util.Log;
@@ -13,8 +14,8 @@ import mindustry.graphics.Pal;
 import mindustry.logic.LVar;
 import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
-import mlogwatcher.websocket.api.ProcessorUpdateResults;
 import mlogwatcher.websocket.api.LogicProcessor;
+import mlogwatcher.websocket.api.ProcessorUpdateResults;
 import mlogwatcher.websocket.api.ProgramId;
 
 import java.util.ArrayList;
@@ -66,6 +67,20 @@ public class ProcessorUpdater {
         Fx.spawn.at(build.x, build.y);
         Log.info("[MlogWatcher] successfully injected code into logic block");
         return true;
+    }
+
+    public static String extractLogic() {
+        return extractLogic(lastTappedLogicBuild);
+    }
+
+    private static String extractLogic(LogicBlock.LogicBuild build) {
+        if (build == null || build.dead || !accessible(build)) {
+            Log.warn("[MlogWatcher] cannot find any selected logic block!");
+            return null;
+        } else {
+            Fx.colorTrail.at(build.x, build.y, 4f * build.block.size, Color.gold);
+            return build.code;
+        }
     }
 
     public enum VersionSelection {exact, compatible, any}

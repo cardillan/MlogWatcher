@@ -20,6 +20,7 @@ public class Response {
 
     public static final String RESULT_TYPE_TEXT = "text_result";
     public static final String RESULT_TYPE_PROCESSOR_UPDATE = "processor_update_result";
+    public static final String RESULT_TYPE_MLOG_CODE = "mlog_code_result";
 
     private String status;
 
@@ -43,6 +44,10 @@ public class Response {
             @JsonSubTypes.Type(
                     value = ProcessorUpdateResults.class,
                     name = RESULT_TYPE_PROCESSOR_UPDATE
+            ),
+            @JsonSubTypes.Type(
+                    value = ProcessorExtractResults.class,
+                    name = RESULT_TYPE_MLOG_CODE
             )
     })
     private Results result;

@@ -75,6 +75,8 @@ public class Settings {
                 try {
                     int port = Integer.parseInt(portTextField.getText());
                     Core.settings.put(Constants.Settings.websocketPort, port);
+                    MlogServer.stopServer();
+                    MlogServer.startServer();
                 } catch (NumberFormatException ignored) {
                 }
             });
@@ -122,6 +124,13 @@ public class Settings {
                 Core.settings.remove(Constants.Settings.mschExtension);
                 Core.settings.remove(Constants.Settings.websocketPort);
                 Core.settings.remove(Constants.Settings.ignoreServerBindError);
+                Core.settings.remove(Constants.Settings.processorTagVariables);
+
+                FileWatcher.stopWatcherThread();
+                FileWatcher.startWatcherThread();
+                MlogServer.stopServer();
+                MlogServer.startServer();
+                ProcessorIdLabel.updateVariables();
             }).margin(14).width(240f).pad(6).padTop(12).colspan(columns).row();
         });
     }
@@ -142,6 +151,6 @@ public class Settings {
     }
 
     private static String numberOfSchematicsText() {
-        return Core.bundle.get(Constants.DirectBundles.numberOfSchematics) + " " + SchematicsUpdater.numberOfSchematics();
+        return Core.bundle.get(Constants.DirectBundles.numberOfSchematics) + " [white]" + SchematicsUpdater.numberOfSchematics();
     }
 }
