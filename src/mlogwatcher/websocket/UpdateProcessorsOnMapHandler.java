@@ -8,13 +8,13 @@ import mlogwatcher.websocket.api.ProcessorUpdateResults;
 import mlogwatcher.websocket.api.ProgramId;
 import mlogwatcher.websocket.api.Request;
 import mlogwatcher.websocket.api.Response;
-import mlogwatcher.websocket.api.UpgradeAllProcessorsOnMapParams;
+import mlogwatcher.websocket.api.UpdateProcessorsOnMapParams;
 
-public class UpgradeAllProcessorsOnMapHandler implements MethodHandler {
+public class UpdateProcessorsOnMapHandler implements MethodHandler {
     @Override
     public Response handle(Request request) {
         try {
-            UpgradeAllProcessorsOnMapParams params = request.getParams();
+            UpdateProcessorsOnMapParams params = request.getParams();
             ProgramId newId = params.getProgramId();
             if (newId == null) return Response.error(Response.ERR_INVALID_PROGRAM_ID);
 

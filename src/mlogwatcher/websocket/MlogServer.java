@@ -31,7 +31,7 @@ public class MlogServer extends WebSocketServer {
         super(new InetSocketAddress(port));
 
         handlers.put(Request.UPDATE_SELECTED_PROCESSOR, new UpdateSelectedProcessorHandler());
-        handlers.put(Request.UPGRADE_ALL_PROCESSORS_ON_MAP, new UpgradeAllProcessorsOnMapHandler());
+        handlers.put(Request.UPDATE_PROCESSORS_ON_MAP, new UpdateProcessorsOnMapHandler());
         handlers.put(Request.PUT_SCHEMATIC_IN_LIBRARY, new PutSchematicInLibraryHandler());
         handlers.put(Request.EXTRACT_SELECTED_PROCESSOR_CODE, new ExctractSelectedProcessorCodeHandler());
     }
