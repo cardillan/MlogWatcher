@@ -33,7 +33,8 @@ public class MlogServer extends WebSocketServer {
         handlers.put(Request.UPDATE_SELECTED_PROCESSOR, new UpdateSelectedProcessorHandler());
         handlers.put(Request.UPDATE_PROCESSORS_ON_MAP, new UpdateProcessorsOnMapHandler());
         handlers.put(Request.PUT_SCHEMATIC_IN_LIBRARY, new PutSchematicInLibraryHandler());
-        handlers.put(Request.EXTRACT_SELECTED_PROCESSOR_CODE, new ExctractSelectedProcessorCodeHandler());
+        handlers.put(Request.EXTRACT_SELECTED_PROCESSOR_CODE, new ExtractSelectedProcessorCodeHandler());
+        handlers.put(Request.EXTRACT_SELECTED_SCHEMATIC, new ExtractSelectedSchematicHandler());
     }
 
     public static void startServer() {

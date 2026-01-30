@@ -8,7 +8,9 @@ import mindustry.core.GameState;
 import mindustry.game.Schematic;
 import mindustry.game.Schematics;
 import mindustry.ui.dialogs.SchematicsDialog;
+import mlogwatcher.ui.SchematicsDialogSubclass;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 public class SchematicsUpdater {
@@ -90,5 +92,25 @@ public class SchematicsUpdater {
         } catch (Throwable th) {
             Log.err("Error updating schematic", th);
         }
+    }
+
+    public static String extractSelectedSchematics() {
+        Log.info("Found " + Vars.ui.schematics.getClass().getSimpleName());
+
+        SchematicsDialog.SchematicInfoDialog info;
+        try {
+            Field field = SchematicsDialog.class.getDeclaredField("info");
+            field.setAccessible(true);
+            info = (SchematicsDialog.SchematicInfoDialog) field.get(Vars.ui.schematics);
+
+            // Indicates the schematic screen is inactive
+            if (!info.isShown()) return "";
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Log.err("[MlogWatcher] error accessing SchematicInfoDialog", e);
+            return null;
+        }
+
+        return Vars.ui.schematics instanceof SchematicsDialogSubclass s && s.lastSelectedSchematic != null
+                ? Vars.schematics.writeBase64(s.lastSelectedSchematic) : null;
     }
 }

@@ -6,7 +6,7 @@ import mlogwatcher.websocket.api.ProcessorExtractResults;
 import mlogwatcher.websocket.api.Request;
 import mlogwatcher.websocket.api.Response;
 
-public class ExctractSelectedProcessorCodeHandler implements MethodHandler {
+public class ExtractSelectedProcessorCodeHandler implements MethodHandler {
     @Override
     public Response handle(Request request) {
         try {
@@ -18,7 +18,7 @@ public class ExctractSelectedProcessorCodeHandler implements MethodHandler {
         } catch (ClassCastException e) {
             Log.err("[MlogWatcher] unexpected type of parameters", e);
         } catch (IllegalAccessError e) {
-            Log.err("[MlogWatcher] error updating selected processor", e);
+            Log.err("[MlogWatcher] error accessing selected processor", e);
         }
 
         return Response.error(Response.ERR_INVALID_ARGUMENTS);
