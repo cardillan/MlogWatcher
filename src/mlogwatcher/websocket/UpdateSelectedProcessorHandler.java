@@ -9,6 +9,10 @@ import mlogwatcher.websocket.api.UpdateSelectedProcessorParams;
 public class UpdateSelectedProcessorHandler implements MethodHandler {
     @Override
     public Response handle(Request request) {
+        if (request.getMethodVersion() != 1) {
+            return Response.error(Response.ERR_UNSUPPORTED_METHOD_VERSION);
+        }
+
         try {
             UpdateSelectedProcessorParams params = request.getParams();
             boolean success = ProcessorUpdater.insertLogic(params.getCode());

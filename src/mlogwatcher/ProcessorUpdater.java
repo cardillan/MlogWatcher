@@ -42,6 +42,8 @@ public class ProcessorUpdater {
             Lines.poly(lastTappedLogicBuild.x, lastTappedLogicBuild.y, 4, 8f);
             Draw.reset();
         });
+
+        Events.on(EventType.ResetEvent.class, e -> lastTappedLogicBuild = null);
     }
 
     public static boolean accessible(LogicBlock.LogicBuild logicBuild) {

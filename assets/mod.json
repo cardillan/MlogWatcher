@@ -1,6 +1,6 @@
 {
   "name": "mlogwatcher",
-  "displayName": "MLogWatcher",
+  "displayName": "MlogWatcher",
   "author": "Sharlottes",
   "description": "The watcher mod for Mlog (Mindustry Logic) programming. Provides a WebSockets API for compilers to write or read mlog code stored in processors and schematics in the schematic library. Supports updating selected processor and schematic library when a file in a local directory changes.",
   "subtitle": "The Mlog watcher mod",

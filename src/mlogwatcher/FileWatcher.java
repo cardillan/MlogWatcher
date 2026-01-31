@@ -22,6 +22,11 @@ public class FileWatcher {
         if (fileWatcherThread == null) return;
         fileWatcherThread.interrupt();
     }
+
+    public static void restartWatcherThread() {
+        stopWatcherThread();
+        startWatcherThread();
+    }
 }
 
 class FileWatcherThread extends Thread {

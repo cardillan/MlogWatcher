@@ -54,6 +54,11 @@ public class MlogServer extends WebSocketServer {
         server = null;
     }
 
+    public static void restartServer() {
+        stopServer();
+        startServer();
+    }
+
     @Override
     public void onOpen(WebSocket conn, ClientHandshake handshake) {
 
@@ -82,8 +87,10 @@ public class MlogServer extends WebSocketServer {
     public static final String STATUS_NO_PROCESSOR = "no_processor";
 
     private void handleLegacyMessage(WebSocket conn, String message) {
-        boolean processorAttached = ProcessorUpdater.insertLogic(message);
-        conn.send(processorAttached ? STATUS_OK : STATUS_NO_PROCESSOR);
+        if (!Core.settings.getBool(Constants.Settings.legacyApiOff)) {
+            boolean processorAttached = ProcessorUpdater.insertLogic(message);
+            conn.send(processorAttached ? STATUS_OK : STATUS_NO_PROCESSOR);
+        }
     }
 
     private void handleMessage(WebSocket conn, String message) {

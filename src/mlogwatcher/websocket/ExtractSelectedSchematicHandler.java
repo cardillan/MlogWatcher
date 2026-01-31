@@ -8,6 +8,10 @@ import mlogwatcher.websocket.api.Response;
 public class ExtractSelectedSchematicHandler implements MethodHandler {
     @Override
     public Response handle(Request request) {
+        if (request.getMethodVersion() != 1) {
+            return Response.error(Response.ERR_UNSUPPORTED_METHOD_VERSION);
+        }
+
         try {
             String encoded = SchematicsUpdater.extractSelectedSchematics();
 

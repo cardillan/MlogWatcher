@@ -1,7 +1,10 @@
 package mlogwatcher;
 
 import arc.Core;
+import arc.func.Cons;
+import arc.func.Func;
 import arc.graphics.Color;
+import arc.scene.ui.CheckBox;
 import arc.scene.ui.Label;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Cell;
@@ -30,42 +33,21 @@ public class Settings {
         Vars.ui.settings.addCategory("Mlog Watcher", Icon.logic, t -> {
             category(t, Constants.DirectBundles.settingsFileWatcher, true);
 
-            t.add(Constants.Bundles.settingMlogPathLabel).left().colspan(columns).row();
-            TextField watchedDirectory = new TextField();
-            watchedDirectory.setMessageText(Constants.Bundles.settingNoPathSelected);
-            watchedDirectory.update(() -> watchedDirectory.setText(String.valueOf(Core.settings.getString(Constants.Settings.mlogPath))));
-            watchedDirectory.changed(() -> {
-                Core.settings.put(Constants.Settings.mlogPath, watchedDirectory.getText());
-                FileWatcher.stopWatcherThread();
-                FileWatcher.startWatcherThread();
-            });
-            t.add(watchedDirectory).colspan(columns).left().growX().row();
+            TextField watchedDirectory = wideText(t, Constants.Settings.mlogPath,
+                    Constants.Bundles.settingMlogPathLabel,
+                    Constants.Bundles.settingNoPathSelected,
+                    c -> FileWatcher.restartWatcherThread());
 
-            t.button(Constants.Bundles.settingMlogSelectButton, () -> {
-                Vars.platform.showFileChooser(true, Constants.Bundles.settingFileChooserTitle, "*", fi -> {
-                    String path = fi.parent().absolutePath();
-                    Core.settings.put(Constants.Settings.mlogPath, path);
-                    FileWatcher.stopWatcherThread();
-                    FileWatcher.startWatcherThread();
-                    watchedDirectory.setText(path);
-                });
-            }).height(60f).pad(16f).colspan(columns).width(t.getWidth()).fill().row();
+            button(t, Constants.Bundles.settingMlogSelectButton, () ->
+                    Vars.platform.showFileChooser(true, Constants.Bundles.settingFileChooserTitle, "*", fi -> {
+                        String path = fi.parent().absolutePath();
+                        Core.settings.put(Constants.Settings.mlogPath, path);
+                        FileWatcher.restartWatcherThread();
+                        watchedDirectory.setText(path);
+                    }));
 
-            TextField mlogExtField = new TextField();
-            mlogExtField.update(() -> mlogExtField.setText(Core.settings.getString(Constants.Settings.mlogExtension)));
-            mlogExtField.setFilter((f, c) -> c != ' ' && c != '.');
-            mlogExtField.setMessageText(Constants.Bundles.settingNoExt);
-            mlogExtField.changed(() -> Core.settings.put(Constants.Settings.mlogExtension, mlogExtField.getText()));
-            t.add(Constants.Bundles.settingMlogExtensionInputLabel).left();
-            t.add(mlogExtField).row();
-
-            TextField mschExtField = new TextField();
-            mschExtField.update(() -> mschExtField.setText(Core.settings.getString(Constants.Settings.mschExtension)));
-            mschExtField.setFilter((f, c) -> c != ' ' && c != '.');
-            mschExtField.setMessageText(Constants.Bundles.settingNoExt);
-            mschExtField.changed(() -> Core.settings.put(Constants.Settings.mschExtension, mschExtField.getText()));
-            t.add(Constants.Bundles.settingMschExtensionInputLabel).left();
-            t.add(mschExtField).row();
+            extension(t, Constants.Settings.mlogExtension, Constants.Bundles.settingMlogExtensionInputLabel);
+            extension(t, Constants.Settings.mschExtension, Constants.Bundles.settingMschExtensionInputLabel);
 
             category(t, Constants.DirectBundles.settingsWebSocket, false);
 
@@ -82,32 +64,19 @@ public class Settings {
             });
 
             t.add(Constants.Bundles.settingWebsocketPortLabel).left();
-            t.add(portTextField);
-            t.row();
+            t.add(portTextField).row();
 
-            t.left();
-            t.check(Constants.Bundles.settingIgnoreServerBindError, (checked) -> {
-                        Core.settings.put(Constants.Settings.ignoreServerBindError, checked);
-                    }).colspan(columns).growX().left()
-                    .checked(x -> Core.settings.getBool(Constants.Settings.ignoreServerBindError)).row();
-            t.center();
+            check(t, Constants.Settings.ignoreServerBindError, Constants.Bundles.settingIgnoreServerBindError);
+            check(t, Constants.Settings.legacyApiOff, Constants.Bundles.settingLegacyApiOff);
 
-            t.button(Constants.Bundles.settingRestartServerButton, () -> {
-                MlogServer.stopServer();
-                MlogServer.startServer();
-            }).height(60f).pad(16f).colspan(columns).growX().row();
+            button(t, Constants.Bundles.settingRestartServerButton, MlogServer::restartServer);
 
             category(t, Constants.DirectBundles.settingsProcessorId, false);
 
-            t.add(Constants.Bundles.settingProcessorTagVariables).colspan(columns).left().row();
-            TextField processorIds = new TextField();
-            processorIds.update(() -> processorIds.setText(String.valueOf(Core.settings.getString(Constants.Settings.processorTagVariables))));
-            processorIds.changed(() -> {
-                Core.settings.put(Constants.Settings.processorTagVariables, processorIds.getText());
-                ProcessorIdLabel.updateVariables();
-            });
-            processorIds.setWidth(t.getWidth());
-            t.add(processorIds).colspan(columns).left().growX().row();
+            wideText(t, Constants.Settings.processorTagVariables,
+                    Constants.Bundles.settingProcessorTagVariables,
+                    Constants.Bundles.settingNoTagVariables,
+                    c -> ProcessorIdLabel.updateVariables());
 
             category(t, Constants.DirectBundles.schematicLibrary, false);
             numberOfSchematicsLabel = t.add(numberOfSchematicsText()).left().colspan(columns).color(Color.gray);
@@ -124,15 +93,49 @@ public class Settings {
                 Core.settings.remove(Constants.Settings.mschExtension);
                 Core.settings.remove(Constants.Settings.websocketPort);
                 Core.settings.remove(Constants.Settings.ignoreServerBindError);
+                Core.settings.remove(Constants.Settings.legacyApiOff);
                 Core.settings.remove(Constants.Settings.processorTagVariables);
 
-                FileWatcher.stopWatcherThread();
-                FileWatcher.startWatcherThread();
-                MlogServer.stopServer();
-                MlogServer.startServer();
+                FileWatcher.restartWatcherThread();
+                MlogServer.restartServer();
                 ProcessorIdLabel.updateVariables();
             }).margin(14).width(240f).pad(6).padTop(12).colspan(columns).row();
         });
+    }
+
+    private static TextField wideText(Table t, String key, String name, String message, Cons<String> changed) {
+        t.add(name).left().colspan(columns).row();
+        TextField field = new TextField();
+        field.setMessageText(message);
+        field.update(() -> field.setText(String.valueOf(Core.settings.getString(key))));
+        field.changed(() -> {
+            Core.settings.put(key, field.getText());
+            changed.get(field.getText());
+        });
+        t.add(field).colspan(columns).left().growX().row();
+        return field;
+    }
+
+    private static void extension(Table t, String key, String name) {
+        t.add(name).left();
+        TextField field = new TextField();
+        field.setFilter((f, c) -> c != ' ' && c != '.');
+        field.setMessageText(Constants.Bundles.settingNoExt);
+        field.update(() -> field.setText(String.valueOf(Core.settings.getString(key))));
+        field.changed(() -> Core.settings.put(key, field.getText()));
+        t.add(field).row();
+    }
+
+    private static void check(Table t, String key, String name) {
+        Cell<CheckBox> check = t.check(name, c -> Core.settings.put(key, c))
+                .checked(c -> Core.settings.getBool(key))
+                .colspan(columns).growX().padBottom(2f).checked(x -> Core.settings.getBool(key));
+        check.get().left();
+        check.row();
+    }
+
+    private static void button(Table t, String name, Runnable runnable) {
+        t.button(name, runnable).height(60f).pad(16f).colspan(columns).width(t.getWidth()).fill().row();
     }
 
     public static void update() {

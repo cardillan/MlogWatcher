@@ -16,6 +16,7 @@ public class Response {
     public static final String ERR_NO_PROCESSORS_FOUND = "no_processors_found";
     public static final String ERR_SCHEMATIC_IMPORT_FAILED = "schematic_import_failed";
     public static final String ERR_UNKNOWN_METHOD = "unknown_method";
+    public static final String ERR_UNSUPPORTED_METHOD_VERSION = "unsupported_method_version";
     public static final String ERR_INTERNAL_ERROR = "internal_error";
     public static final String ERR_NO_SCHEMATIC_SELECTED = "no_schematic_selected";
     public static final String ERR_SCHEMATIC_EXTRACTION_FAILED = "schematic_extraction_failed";

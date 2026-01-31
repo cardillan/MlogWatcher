@@ -23,8 +23,10 @@ public class Constants {
         public static final String settingWebsocketPortLabel = "@mlogwatcher.setting.websocketPortLabel";
         public static final String settingRestartServerButton = "@mlogwatcher.setting.restartServerButton";
         public static final String settingIgnoreServerBindError = "@mlogwatcher.setting.ignoreServerBindError";
+        public static final String settingLegacyApiOff = "@mlogwatcher.setting.legacyApiOff";
 
         public static final String settingProcessorTagVariables = "@mlogwatcher.setting.processorTagVariables";
+        public static final String settingNoTagVariables = "@mlogwatcher.setting.noTagVariables";
 
         public static final String purgeSchematics = "@mlogwatcher.setting.purgeSchematics";
         public static final String purgeSchematicsPrompt = "@mlogwatcher.setting.purgeSchematicsPrompt";
@@ -39,6 +41,7 @@ public class Constants {
         public static final String mschExtension = "mlogwatcher-msch-extension";
         public static final String websocketPort = "mlogwatcher-websocket-port";
         public static final String ignoreServerBindError = "mlogwatcher-ignore-websocket-error";
+        public static final String legacyApiOff = "mlogwatcher-legacy-api-off";
         public static final String processorTagVariables = "mlogwatcher-processor-tag-variables";
     }
 }

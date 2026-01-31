@@ -30,6 +30,7 @@ dependencies {
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     implementation 'org.java-websocket:Java-WebSocket:1.5.4'
     implementation "com.fasterxml.jackson.core:jackson-databind:2.19.2"
+    implementation "com.github.victools:jsonschema-generator:4.38.0"
 
     annotationProcessor 'com.github.Anuken:jabel:0.8.0'
 }

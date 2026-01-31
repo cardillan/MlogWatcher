@@ -9,6 +9,10 @@ import mlogwatcher.websocket.api.Response;
 public class PutSchematicInLibraryHandler implements MethodHandler {
     @Override
     public Response handle(Request request) {
+        if (request.getMethodVersion() != 1) {
+            return Response.error(Response.ERR_UNSUPPORTED_METHOD_VERSION);
+        }
+
         try {
             PutSchematicInLibraryParams params = request.getParams();
 

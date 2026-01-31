@@ -13,6 +13,10 @@ import mlogwatcher.websocket.api.UpdateProcessorsOnMapParams;
 public class UpdateProcessorsOnMapHandler implements MethodHandler {
     @Override
     public Response handle(Request request) {
+        if (request.getMethodVersion() != 1) {
+            return Response.error(Response.ERR_UNSUPPORTED_METHOD_VERSION);
+        }
+
         try {
             UpdateProcessorsOnMapParams params = request.getParams();
             ProgramId newId = params.getProgramId();
