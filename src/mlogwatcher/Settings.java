@@ -2,7 +2,6 @@ package mlogwatcher;
 
 import arc.Core;
 import arc.func.Cons;
-import arc.func.Func;
 import arc.graphics.Color;
 import arc.scene.ui.CheckBox;
 import arc.scene.ui.Label;
@@ -19,6 +18,8 @@ import static mindustry.Vars.ui;
 
 public class Settings {
     private static final int columns = 2;
+    private static Cell<Label> fileWatcherStatus;
+    private static Cell<Label> webSocketStatus;
     private static Cell<Label> numberOfSchematicsLabel;
 
     public static void init() {
@@ -31,7 +32,8 @@ public class Settings {
         );
 
         Vars.ui.settings.addCategory("Mlog Watcher", Icon.logic, t -> {
-            category(t, Constants.DirectBundles.settingsFileWatcher, true);
+            fileWatcherStatus = category(t, true, FileWatcher.running()
+                    ? Constants.DirectBundles.settingsFileWatcherRunning : Constants.DirectBundles.settingsFileWatcherStopped);
 
             TextField watchedDirectory = wideText(t, Constants.Settings.mlogPath,
                     Constants.Bundles.settingMlogPathLabel,
@@ -49,7 +51,10 @@ public class Settings {
             extension(t, Constants.Settings.mlogExtension, Constants.Bundles.settingMlogExtensionInputLabel);
             extension(t, Constants.Settings.mschExtension, Constants.Bundles.settingMschExtensionInputLabel);
 
-            category(t, Constants.DirectBundles.settingsWebSocket, false);
+            button(t, Constants.Bundles.settingRestartFileWatcherButton, FileWatcher::restartWatcherThread);
+
+            webSocketStatus = category(t, false, MlogServer.isOpen()
+                    ? Constants.DirectBundles.settingsWebSocketRunning : Constants.DirectBundles.settingsWebSocketStopped);
 
             TextField portTextField = new TextField();
             portTextField.update(() -> portTextField.setText(String.valueOf(Core.settings.getInt(Constants.Settings.websocketPort))));
@@ -71,20 +76,20 @@ public class Settings {
 
             button(t, Constants.Bundles.settingRestartServerButton, MlogServer::restartServer);
 
-            category(t, Constants.DirectBundles.settingsProcessorId, false);
+            category(t, false, Constants.DirectBundles.settingsProcessorId);
 
             wideText(t, Constants.Settings.processorTagVariables,
                     Constants.Bundles.settingProcessorTagVariables,
                     Constants.Bundles.settingNoTagVariables,
                     c -> ProcessorIdLabel.updateVariables());
 
-            category(t, Constants.DirectBundles.schematicLibrary, false);
+            category(t, false, Constants.DirectBundles.schematicLibrary);
             numberOfSchematicsLabel = t.add(numberOfSchematicsText()).left().colspan(columns).color(Color.gray);
             numberOfSchematicsLabel.row();
-            t.button(Constants.Bundles.purgeSchematics, () -> {
+            button(t, Constants.Bundles.purgeSchematics, () -> {
                 ui.showConfirm("@confirm", Constants.Bundles.purgeSchematicsPrompt, SchematicsUpdater::purgeSchematics);
                 numberOfSchematicsLabel.update(l -> l.setText(numberOfSchematicsText()));
-            }).height(60f).pad(16f).colspan(columns).growX().row();
+            });
 
 
             t.button("@settings.reset", () -> {
@@ -101,6 +106,36 @@ public class Settings {
                 ProcessorIdLabel.updateVariables();
             }).margin(14).width(240f).pad(6).padTop(12).colspan(columns).row();
         });
+    }
+
+    public static void updateWatcherStatus(boolean running) {
+        if (fileWatcherStatus == null) return;
+        fileWatcherStatus.update(l -> l.setText(Core.bundle.get(running
+                ? Constants.DirectBundles.settingsFileWatcherRunning
+                : Constants.DirectBundles.settingsFileWatcherStopped)));
+    }
+
+    public static void updateWebsocketStatus(boolean running) {
+        if (webSocketStatus == null) return;
+        webSocketStatus.update(l -> l.setText(Core.bundle.get(running
+                ? Constants.DirectBundles.settingsWebSocketRunning
+                : Constants.DirectBundles.settingsWebSocketStopped)));
+    }
+
+    public static void updateNumberOfSchematics() {
+        if (numberOfSchematicsLabel != null) {
+            numberOfSchematicsLabel.update(l -> l.setText(numberOfSchematicsText()));
+        }
+    }
+
+    private static Cell<Label> category(Table t, boolean first, String key) {
+        Cell<Label> cell = t.add(bundle.get(key));
+        cell.left().color(Color.gray).colspan(columns)
+                .pad(10).padTop(first ? 0 : 40).padBottom(4).row();
+        t.image().color(Color.gray).fillX().colspan(columns).height(3)
+                .pad(0).padBottom(20).row();
+
+        return cell;
     }
 
     private static TextField wideText(Table t, String key, String name, String message, Cons<String> changed) {
@@ -138,22 +173,7 @@ public class Settings {
         t.button(name, runnable).height(60f).pad(16f).colspan(columns).width(t.getWidth()).fill().row();
     }
 
-    public static void update() {
-        if (ui.settings.isShown() && numberOfSchematicsLabel != null) {
-            numberOfSchematicsLabel.update(l -> l.setText(numberOfSchematicsText()));
-        }
-    }
-
-    private static void category(Table t, String key, boolean first) {
-        t.add(bundle.get(key, ""))
-                .left()
-                .color(Color.gray)
-                .colspan(columns).pad(10).padTop(first ? 0 : 40).padBottom(4).row();
-        t.image().color(Color.gray).fillX().height(3)
-                .pad(0).colspan(columns).padTop(0).padBottom(20).row();
-    }
-
     private static String numberOfSchematicsText() {
-        return Core.bundle.get(Constants.DirectBundles.numberOfSchematics) + " [white]" + SchematicsUpdater.numberOfSchematics();
+        return Core.bundle.get(Constants.DirectBundles.numberOfSchematics) + SchematicsUpdater.numberOfSchematics();
     }
 }

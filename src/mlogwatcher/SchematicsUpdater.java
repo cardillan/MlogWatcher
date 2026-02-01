@@ -83,7 +83,7 @@ public class SchematicsUpdater {
                 checkTags.invoke(dialog, schematic);
             }
 
-            Settings.update();
+            Settings.updateNumberOfSchematics();
             if (Vars.state.is(GameState.State.playing)) {
                 Vars.ui.showInfoToast("Imported schematic [gold]" + schematic.name(), 2);
             } else {

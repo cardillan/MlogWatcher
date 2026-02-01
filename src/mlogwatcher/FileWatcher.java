@@ -21,11 +21,16 @@ public class FileWatcher {
     public static void stopWatcherThread() {
         if (fileWatcherThread == null) return;
         fileWatcherThread.interrupt();
+        fileWatcherThread = null;
     }
 
     public static void restartWatcherThread() {
         stopWatcherThread();
         startWatcherThread();
+    }
+
+    public static boolean running() {
+        return fileWatcherThread != null && fileWatcherThread.isAlive();
     }
 }
 
@@ -46,6 +51,7 @@ class FileWatcherThread extends Thread {
         try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
             targetFilePath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
             Log.info("[MlogWatcher] watching directory " + targetFilePath);
+            Settings.updateWatcherStatus(true);
             while (true) {
                 final WatchKey watchKey = watchService.take();
                 for (WatchEvent<?> event : watchKey.pollEvents()) {
@@ -69,7 +75,9 @@ class FileWatcherThread extends Thread {
             Log.warn("[MlogWatcher] directory has been changed");
         } catch (Exception e) {
             Log.warn("[MlogWatcher] file watcher restarted");
-            FileWatcher.startWatcherThread();
+            FileWatcher.restartWatcherThread();
+        } finally {
+            Settings.updateWatcherStatus(false);
         }
     }
 

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import mlogwatcher.Constants;
 import mlogwatcher.ProcessorUpdater;
+import mlogwatcher.Settings;
 import mlogwatcher.websocket.api.Request;
 import mlogwatcher.websocket.api.Response;
 import org.java_websocket.WebSocket;
@@ -25,6 +26,8 @@ public class MlogServer extends WebSocketServer {
     @Nullable
     private static MlogServer server;
 
+    private boolean open;
+
     private final Map<String, MethodHandler> handlers = new HashMap<>();
 
     MlogServer(int port) {
@@ -39,6 +42,7 @@ public class MlogServer extends WebSocketServer {
 
     public static void startServer() {
         if (server != null) return;
+        Settings.updateWebsocketStatus(false);
         server = new MlogServer(Core.settings.getInt(Constants.Settings.websocketPort));
         server.start();
     }
@@ -57,6 +61,10 @@ public class MlogServer extends WebSocketServer {
     public static void restartServer() {
         stopServer();
         startServer();
+    }
+
+    public static boolean isOpen() {
+        return server != null && !server.open;
     }
 
     @Override
@@ -157,6 +165,12 @@ public class MlogServer extends WebSocketServer {
     public void onError(WebSocket conn, Exception ex) {
         Log.err("[MlogWatcher] socket error", ex);
 
+        if (conn == null) {
+            // This is a startup error
+            open = false;
+            Settings.updateWebsocketStatus(false);
+        }
+
         if (ex instanceof BindException) {
             boolean ignore = Core.settings.getBool(Constants.Settings.ignoreServerBindError);
             if (ignore) return;
@@ -179,6 +193,8 @@ public class MlogServer extends WebSocketServer {
 
     @Override
     public void onStart() {
+        open = true;
+        Settings.updateWebsocketStatus(true);
         Log.info("[MlogWatcher] server running on port @", getPort());
     }
 }

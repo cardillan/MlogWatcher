@@ -51,7 +51,7 @@ In this section, you specify the port number used by the WebSocket API. Changing
 
 When starting the WebSocket server fails for any reason, a message is displayed. By checking the _Ignore websocket server error_ box, the message is suppressed. A common reason for a failure is running a second instance of the game.
 
-The WebSocket server also supports the legacy API by default. You can disable the legacy API using the _Deactivate legacy API_ box. It is advisable to deactivate the legacy API if you don't use any tools that rely on it.
+The WebSocket server also supports the legacy API by default. You can disable the legacy API using the _Disable legacy API_ box. It is advisable to deactivate the legacy API if you don't use any tools that rely on it.
 
 In case of experiencing problems with the WebSocket API, the server can be forcibly restarted using the _Restart websocket server_ button. 
 

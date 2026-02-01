@@ -3,8 +3,10 @@ package mlogwatcher;
 public class Constants {
     // Direct bundle references (without the "@" prefix)
     public static class DirectBundles {
-        public static final String settingsFileWatcher = "mlogwatcher.setting.fileWatcher";
-        public static final String settingsWebSocket = "mlogwatcher.setting.websocket";
+        public static final String settingsFileWatcherRunning = "mlogwatcher.setting.fileWatcherRunning";
+        public static final String settingsFileWatcherStopped = "mlogwatcher.setting.fileWatcherStopped";
+        public static final String settingsWebSocketRunning = "mlogwatcher.setting.websocketRunning";
+        public static final String settingsWebSocketStopped = "mlogwatcher.setting.websocketStopped";
         public static final String settingsProcessorId = "mlogwatcher.setting.processorId";
         public static final String schematicLibrary = "mlogwatcher.setting.schematicLibrary";
         public static final String numberOfSchematics = "mlogwatcher.setting.numberOfSchematics";
@@ -19,6 +21,7 @@ public class Constants {
         public static final String settingMlogExtensionInputLabel = "@mlogwatcher.setting.mlogExtensionInputLabel";
         public static final String settingMschExtensionInputLabel = "@mlogwatcher.setting.mschExtensionInputLabel";
         public static final String settingNoExt = "@mlogwatcher.setting.noExtension";
+        public static final String settingRestartFileWatcherButton = "@mlogwatcher.setting.restartFileWatcherButton";
 
         public static final String settingWebsocketPortLabel = "@mlogwatcher.setting.websocketPortLabel";
         public static final String settingRestartServerButton = "@mlogwatcher.setting.restartServerButton";
