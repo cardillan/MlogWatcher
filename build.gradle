@@ -36,12 +36,20 @@ dependencies {
 }
 
 jar {
+    dependsOn "generateDoc"
+
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     archiveFileName = "${artifactFilename}Desktop.jar"
+    exclude 'mlogwatcher/JsonDocGenerator.class'
 
     from{
         configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+tasks.register('generateDoc', JavaExec) {
+    mainClass = 'mlogwatcher.JsonDocGenerator'
+    classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('jarAndroid', Jar) {
