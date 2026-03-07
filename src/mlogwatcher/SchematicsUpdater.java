@@ -1,0 +1,116 @@
+package mlogwatcher;
+
+import arc.files.Fi;
+import arc.struct.Seq;
+import arc.util.Log;
+import mindustry.Vars;
+import mindustry.core.GameState;
+import mindustry.game.Schematic;
+import mindustry.game.Schematics;
+import mindustry.ui.dialogs.SchematicsDialog;
+import mlogwatcher.ui.SchematicsDialogSubclass;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+
+public class SchematicsUpdater {
+    private static final String mlogWatcherTag = "MlogWatcher";
+
+    public static void importSchematicsFromFile(String path) {
+        try {
+            Schematic schematic = Schematics.read(Fi.get(path));
+            schematic.file = null;      // We don't want to keep a reference to this file
+            updateSchematics(schematic, true);
+        } catch (Throwable th) {
+            Log.err("[MlogWatcher] error loading schematics from file " + path, th);
+        }
+    }
+
+    public static boolean importSchematics(String encodedSchematics, boolean overwrite) {
+        // The schematics file starts with "msch", which, encoded, gives this prefix
+        if (!encodedSchematics.startsWith("bXNjaA")) return false;
+
+        try {
+            Schematic schematic = Schematics.readBase64(encodedSchematics);
+            updateSchematics(schematic, overwrite);
+            return true;
+        } catch (Exception e) {
+            Log.err("[MlogWatcher] error decoding schematics from message", e);
+            return false;
+        }
+    }
+
+    private static boolean isMlogWatcherSchematic(Schematic schematic) {
+        return schematic.labels.contains(mlogWatcherTag);
+    }
+
+    public static int numberOfSchematics() {
+        return Vars.schematics.all().count(SchematicsUpdater::isMlogWatcherSchematic);
+    }
+
+    public static void purgeSchematics() {
+        Seq<Schematic> purgeSeq = new Seq<>();
+        Vars.schematics.all().each(SchematicsUpdater::isMlogWatcherSchematic, purgeSeq::add);
+        purgeSeq.each(s -> Vars.schematics.remove(s));
+    }
+
+    private static void updateSchematics(Schematic schematic, boolean overwrite) {
+        try {
+            schematic.removeSteamID();
+            schematic.labels.add(mlogWatcherTag);
+
+            if (overwrite) {
+                Schematic existing = Vars.schematics.all()
+                        .find(s -> s.name().equals(schematic.name()) && isMlogWatcherSchematic(s));
+                if (existing != null) {
+                    Vars.schematics.remove(existing);
+                }
+            }
+
+            Vars.schematics.add(schematic);
+            Log.info("[MlogWatcher] successfully updated schematic " + schematic.name());
+
+            // We need to update the Schematics dialog if it is shown
+            SchematicsDialog dialog = Vars.ui.schematics;
+            if (dialog.isShown()) {
+                Class<?> clazz = Class.forName("mindustry.ui.dialogs.SchematicsDialog");
+                Method setup = clazz.getDeclaredMethod("setup");
+                setup.setAccessible(true);
+                setup.invoke(dialog);
+
+                Method checkTags = clazz.getDeclaredMethod("checkTags", Schematic.class);
+                checkTags.setAccessible(true);
+                checkTags.invoke(dialog, schematic);
+            }
+
+            Settings.updateNumberOfSchematics();
+            if (Vars.state.is(GameState.State.playing)) {
+                Vars.ui.showInfoToast("Imported schematic [gold]" + schematic.name(), 2);
+            } else {
+                dialog.showInfo(schematic);
+            }
+        } catch (Throwable th) {
+            Log.err("Error updating schematic", th);
+        }
+    }
+
+    public static String extractSelectedSchematics() {
+        Log.info("Found " + Vars.ui.schematics.getClass().getSimpleName());
+
+        SchematicsDialog.SchematicInfoDialog info;
+        try {
+            Field field = SchematicsDialog.class.getDeclaredField("info");
+            field.setAccessible(true);
+            info = (SchematicsDialog.SchematicInfoDialog) field.get(Vars.ui.schematics);
+
+            // Indicates the schematic screen is inactive
+            if (!info.isShown()) return "";
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            Log.err("[MlogWatcher] error accessing SchematicInfoDialog", e);
+            return null;
+        }
+
+        return Vars.ui.schematics instanceof SchematicsDialogSubclass s && s.lastSelectedSchematic != null
+                ? Vars.schematics.writeBase64(s.lastSelectedSchematic) : null;
+    }
+}

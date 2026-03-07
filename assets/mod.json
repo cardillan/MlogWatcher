@@ -1,12 +1,12 @@
 {
   "name": "mlogwatcher",
-  "displayName": "MLogWatcher",
+  "displayName": "MlogWatcher",
   "author": "Sharlottes",
-  "description": "the watcher mod for MLog(Mindustry Logic) programming. while watching the target file's change, the mod will read, parse and inject code to selected processor from the target file.",
-  "subtitle": "the MLog watcher mod",
-  "version": "0.3v",
+  "description": "The watcher mod for Mlog (Mindustry Logic) programming. Provides a WebSockets API for compilers to write or read mlog code stored in processors and schematics in the schematic library. Supports updating selected processor and schematic library when a file in a local directory changes.",
+  "subtitle": "The Mlog watcher mod",
+  "version": "0.4v",
   "main": "mlogwatcher.MlogWatcher",
-  "minGameVersion": "146",
+  "minGameVersion": "154.2",
   "dependencies": [],
   "hidden": true,
   "java": true

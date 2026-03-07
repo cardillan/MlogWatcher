@@ -6,8 +6,11 @@ sourceSets {
 }
 
 ext {
-    mindustryVersion = 'v146'
+    mindustryVersion = 'v154.2'
     artifactFilename = "MlogWatcher"
+    jabelVersion = "93fde537c7"
+    //windows sucks
+    isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
 
@@ -26,17 +29,27 @@ dependencies {
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     implementation 'org.java-websocket:Java-WebSocket:1.5.4'
+    implementation "com.fasterxml.jackson.core:jackson-databind:2.19.2"
+    implementation "com.github.victools:jsonschema-generator:4.38.0"
 
     annotationProcessor 'com.github.Anuken:jabel:0.8.0'
 }
 
 jar {
+    dependsOn "generateDoc"
+
     duplicatesStrategy DuplicatesStrategy.EXCLUDE
     archiveFileName = "${artifactFilename}Desktop.jar"
+    exclude 'mlogwatcher/JsonDocGenerator.class'
 
     from{
         configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
     }
+}
+
+tasks.register('generateDoc', JavaExec) {
+    mainClass = 'mlogwatcher.JsonDocGenerator'
+    classpath = sourceSets.main.runtimeClasspath
 }
 
 tasks.register('jarAndroid', Jar) {
