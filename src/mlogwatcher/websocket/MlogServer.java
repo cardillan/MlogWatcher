@@ -96,8 +96,9 @@ public class MlogServer extends WebSocketServer {
 
     private void handleLegacyMessage(WebSocket conn, String message) {
         if (!Core.settings.getBool(Constants.Settings.legacyApiOff)) {
-            boolean processorAttached = ProcessorUpdater.insertLogic(message);
-            conn.send(processorAttached ? STATUS_OK : STATUS_NO_PROCESSOR);
+            String result = ProcessorUpdater.insertLogic(message);
+            // The legacy API doesn't support any error message except "no_processor"
+            conn.send(Response.isSuccess(result) ? STATUS_OK : STATUS_NO_PROCESSOR);
         }
     }
 

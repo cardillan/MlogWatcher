@@ -17,6 +17,7 @@ import mindustry.world.blocks.logic.LogicBlock;
 import mlogwatcher.websocket.api.LogicProcessor;
 import mlogwatcher.websocket.api.ProcessorUpdateResults;
 import mlogwatcher.websocket.api.ProgramId;
+import mlogwatcher.websocket.api.Response;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,20 +56,26 @@ public class ProcessorUpdater {
         insertLogic(lastTappedLogicBuild, asmCode);
     }
 
-    public static boolean insertLogic(String asmCode) {
+    public static String insertLogic(String asmCode) {
         return insertLogic(lastTappedLogicBuild, asmCode);
     }
 
-    public static boolean insertLogic(LogicBlock.LogicBuild build, String asmCode) {
+    public static String insertLogic(LogicBlock.LogicBuild build, String asmCode) {
         if (build == null || build.dead || !accessible(build)) {
             Log.warn("[MlogWatcher] cannot find any selected logic block!");
-            return false;
+            return Response.ERR_NO_PROCESSOR_ATTACHED;
         }
 
-        build.configure(LogicBlock.compress(asmCode, build.relativeConnections()));
+        byte[] compressed = LogicBlock.compress(asmCode, build.relativeConnections());
+        // Intentionally not using the in-game constant to be compatible with older releases as well
+        if (compressed.length > 16_000) {
+            Log.warn("[MlogWatcher] code size too large!");
+            return Response.ERR_CODE_SIZE_TOO_LARGE;
+        }
+        build.configure(compressed);
         Fx.spawn.at(build.x, build.y);
         Log.info("[MlogWatcher] successfully injected code into logic block");
-        return true;
+        return Response.STATUS_SUCCESS;
     }
 
     public static String extractLogic() {
@@ -106,8 +113,8 @@ public class ProcessorUpdater {
                     updateStatus = LogicProcessor.MISSING_PROGRAM_ID;
                 } else if (oldId.getIdPrefix().equals(newId.getIdPrefix())) {
                     if (shouldUpdate(oldId, newId, versionSelection)) {
-                        insertLogic(logicBuild, asmCode);
-                        updateStatus = LogicProcessor.UPDATED;
+                        String result = insertLogic(logicBuild, asmCode);
+                        updateStatus = Response.isSuccess(result) ? LogicProcessor.UPDATED : result;
                     } else {
                         updateStatus = LogicProcessor.INCOMPATIBLE_VERSION;
                     }
