@@ -12,7 +12,7 @@ import mindustry.content.Fx;
 import mindustry.game.EventType;
 import mindustry.graphics.Pal;
 import mindustry.logic.LExecutor;
-import mindustry.logic.LVar;
+import mindustry.logic.LExecutor.Var;
 import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
 import mlogwatcher.websocket.api.LogicProcessor;
@@ -129,8 +129,12 @@ public class ProcessorUpdater {
         };
     }
 
-    private static @Nullable String extractString(LExecutor executor, String variableName) {
-        LVar lVar = executor.optionalVar(variableName);
-        return lVar != null && lVar.obj() instanceof String str ? str : null;
+    public static @Nullable String extractString(LExecutor executor, String variableName) {
+        for (Var var : executor.vars) {
+            if (var.name.equals(variableName)) {
+                return var.isobj && var.objval instanceof String str ? str : null;
+            }
+        }
+        return null;
     }
 }

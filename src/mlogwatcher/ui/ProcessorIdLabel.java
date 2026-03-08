@@ -10,11 +10,10 @@ import arc.util.pooling.Pools;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.gen.WorldLabel;
-import mindustry.logic.LExecutor;
-import mindustry.logic.LVar;
 import mindustry.ui.Fonts;
 import mindustry.world.blocks.logic.LogicBlock;
 import mlogwatcher.Constants;
+import mlogwatcher.ProcessorUpdater;
 
 public class ProcessorIdLabel {
     public static Seq<String> variables = new Seq<>();
@@ -33,8 +32,8 @@ public class ProcessorIdLabel {
 
             if (Vars.world.buildWorld(x, y) instanceof LogicBlock.LogicBuild processor) {
                 for (String variable : variables) {
-                    LVar lVar = processor.executor.optionalVar(variable);
-                    if (lVar != null && lVar.isobj && lVar.objval instanceof String text && !text.isEmpty()) {
+                    String text = ProcessorUpdater.extractString(processor.executor, variable);
+                    if (text != null && !text.isEmpty()) {
                         updateLabel(processor, text);
                         return;
                     }
@@ -80,7 +79,7 @@ public class ProcessorIdLabel {
             }
         }
 
-        label.flags = WorldLabel.flagAlignLeft | WorldLabel.flagBackground | WorldLabel.flagOutline;
+        label.flags = WorldLabel.flagBackground | WorldLabel.flagOutline;
         String str = new String(buffer, 0, l);
 
         // Here we'll compute the position
@@ -88,8 +87,7 @@ public class ProcessorIdLabel {
         GlyphLayout layout = Pools.obtain(GlyphLayout.class, GlyphLayout::new);
         boolean ints = font.usesIntegerPositions();
         font.setUseIntegerPositions(false);
-        font.getData().setScale(0.25F * label.fontSize / Scl.scl(1.0F)
-                / ((label.flags & WorldLabel.flagAutoscale) != 0 ? 0.2F * Vars.renderer.camerascale + 0.05F : 1.0F));
+        font.getData().setScale(0.25F * label.fontSize / Scl.scl(1.0F));
         layout.setText(font, text);
         int border = (label.flags & WorldLabel.flagBackground) != 0 ? 1 : 0;
         float x = processor.x;
