@@ -11,6 +11,7 @@ import mindustry.Vars;
 import mindustry.content.Fx;
 import mindustry.game.EventType;
 import mindustry.graphics.Pal;
+import mindustry.logic.LExecutor;
 import mindustry.logic.LVar;
 import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
@@ -97,8 +98,8 @@ public class ProcessorUpdater {
     private static void updateTile(Tile tile, String asmCode, ProgramId newId, String variableName,
             VersionSelection versionSelection, List<LogicProcessor> updates) {
         if (tile.build instanceof LogicBlock.LogicBuild logicBuild && accessible(logicBuild)) {
-            LVar lVar = logicBuild.executor.optionalVar(variableName);
-            if (lVar != null && lVar.obj() instanceof String id) {
+            String id = extractString(logicBuild.executor, variableName);
+            if (id != null) {
                 ProgramId oldId = ProgramId.parse(id);
 
                 final String updateStatus;
@@ -126,5 +127,10 @@ public class ProcessorUpdater {
             case compatible -> oldId.compatibleVersionMatch(newId);
             case any -> true;
         };
+    }
+
+    private static @Nullable String extractString(LExecutor executor, String variableName) {
+        LVar lVar = executor.optionalVar(variableName);
+        return lVar != null && lVar.obj() instanceof String str ? str : null;
     }
 }
