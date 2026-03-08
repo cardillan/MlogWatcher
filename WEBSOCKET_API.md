@@ -5,7 +5,7 @@ The mod provides a WebSocket API, which can be used to update logic processors a
 The WebSocket server runs on port `9992` by default, but this can be changed in the configuration. The most recent interface runs on the `/v1` path. For connecting to a game running on a local computer, use the `localhost:9992/v1` URL. (It is also possible to connect to a game running on another device, assuming the connection can be made and isn't blocked by a firewall.)
 
 > [!NOTE]
-> When no path is specified in the URL, the [legacy API](#legacy-api) is used. When any other path is specified, the server doesn't process or respond to the request.
+> When no path is specified in the URL, the [legacy API](#legacy-api) is used. When any path other than `/v1` is specified, the server doesn't process or respond to the request.
 
 The API uses JSON for communication. An instance of the [`Request` class](CLASSES.md#class-request) must be sent to the server. The class has the following attributes:
 
