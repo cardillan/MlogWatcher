@@ -2,9 +2,9 @@ name: Java CI with Gradle
 
 on:
   push:
-    branches: [ master ]
+    branches: [ master, mindustry-7 ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, mindustry-7 ]
   workflow_dispatch:
 
 jobs:
