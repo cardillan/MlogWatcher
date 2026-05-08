@@ -48,7 +48,7 @@ This method injects mlog code into the selected processor on the map.
 
 [`UpdateSelectedProcessorParams`](CLASSES.md#class-updateselectedprocessorparams) 
 
-* `code`: a Base-64 encoded text of an mlog program.
+* `code`: the source code of the mlog program.
 
 #### Responses
 
@@ -70,7 +70,7 @@ This method finds all compatible processors on the map and injects the provided 
 
 [`UpdateProcessorsOnMapParams` instance](CLASSES.md#class-updateprocessorsonmapparams)
 
-* `code`: a Base-64 encoded text of an mlog program.
+* `code`: the source code of the mlog program.
 * `program_id`: a [program ID](CLASSES.md#class-programid). Contains a prefix and version numbers. To match, the processor's ID must have the same prefix and a compatible version number.
 * `variableName`: name of the variable which should contain the program ID. The server looks for this variable in processors. The variable name may not be overridden by the mod's configuration.
 * `version_selection`: string. One of: 
@@ -142,7 +142,7 @@ This method doesn't take any parameters (set `params` to `null`).
 * `status`: `success`
 * `result_type`: `mlog_code_result`
 * `result`: [`ProcessorExtractResults`](CLASSES.md#class-processorextractresults) instance containing the following attributes:
-  * `code`: a Base-64 encoded text of the extracted mlog program.
+  * `code`: the source code of the extracted mlog program.
 
 **Errors**
 
