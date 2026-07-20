@@ -56,6 +56,7 @@ public class Settings {
             extension(t, Constants.Settings.mlogExtension, Constants.Bundles.settingMlogExtensionInputLabel);
             extension(t, Constants.Settings.mschExtension, Constants.Bundles.settingMschExtensionInputLabel);
             check(t, Constants.Settings.mlogWatchByNameOn, Constants.Bundles.settingMlogWatchByNameOn);
+            check(t, Constants.Settings.recursiveDirectoryWatchOn, Constants.Bundles.settingRecursiveDirectoryWatchOn);
 
             button(t, Constants.Bundles.settingRestartFileWatcherButton, FileWatcher::restartWatcherThread);
 

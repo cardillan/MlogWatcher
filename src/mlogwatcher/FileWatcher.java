@@ -9,6 +9,7 @@ import mindustry.world.blocks.logic.LogicBlock;
 
 import java.io.IOException;
 import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 public class FileWatcher {
     @Nullable
@@ -54,7 +55,21 @@ class FileWatcherThread extends Thread {
         Path targetFilePath = FileSystems.getDefault().getPath(this.targetFilePath);
 
         try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
-            targetFilePath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+            Files.walkFileTree(targetFilePath, new SimpleFileVisitor<>() {
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
+                        throws IOException {
+                    dir.register(
+                            watchService,
+                            StandardWatchEventKinds.ENTRY_CREATE,
+                            StandardWatchEventKinds.ENTRY_MODIFY
+                    );
+
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+
+            targetFilePath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_CREATE);
 
             Log.info("[MlogWatcher] watching directory " + targetFilePath);
             Settings.updateWatcherStatus(true);
@@ -63,7 +78,15 @@ class FileWatcherThread extends Thread {
                 final WatchKey watchKey = watchService.take();
 
                 for (WatchEvent<?> event : watchKey.pollEvents()) {
-                    Path path = targetFilePath.resolve((Path)event.context());
+                    Path path = ((Path) watchKey.watchable()).resolve((Path)event.context());
+
+                    if (event.kind() == StandardWatchEventKinds.ENTRY_CREATE) {
+                        Log.warn("[MlogWatcher] new file detected, restarting watcher thread");
+                        FileWatcher.restartWatcherThread();
+
+                        return;
+                    }
+
                     String pathName = path.toString();
                     String fileName = pathName
                             .substring(targetFilePath.toString().length() + 1)
