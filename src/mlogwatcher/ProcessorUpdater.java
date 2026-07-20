@@ -53,11 +53,16 @@ public class ProcessorUpdater {
     }
 
     public static String insertLogic(String asmCode) {
+        if (lastTappedLogicBuild == null || lastTappedLogicBuild.dead || !accessible(lastTappedLogicBuild)) {
+            Log.warn("[MlogWatcher] cannot find any selected logic block!");
+            return Response.ERR_NO_PROCESSOR_ATTACHED;
+        }
+
         return insertLogic(lastTappedLogicBuild, asmCode);
     }
 
     public static String insertLogic(@Nullable LogicBlock.LogicBuild build, String asmCode) {
-        if (build == null || build.dead || !accessible(build)) {
+        if (build == null || build.dead) {
             Log.warn("[MlogWatcher] cannot find any selected logic block!");
             return Response.ERR_NO_PROCESSOR_ATTACHED;
         }

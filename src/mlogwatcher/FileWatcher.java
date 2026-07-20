@@ -4,12 +4,20 @@ import arc.Core;
 import arc.files.Fi;
 import arc.util.Log;
 import arc.util.Nullable;
+import arc.util.Reflect;
+import mindustry.Vars;
+import mindustry.content.Blocks;
+import mindustry.editor.MapInfoDialog;
+import mindustry.editor.MapProcessorsDialog;
 import mindustry.gen.Groups;
+import mindustry.world.Tile;
 import mindustry.world.blocks.logic.LogicBlock;
 
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import static mindustry.Vars.state;
 
 public class FileWatcher {
     @Nullable
@@ -100,19 +108,30 @@ class FileWatcherThread extends Thread {
                         Core.app.post(() -> {
                             String asmCode = Fi.get(pathName).readString();
 
-                            @Nullable
-                            LogicBlock.LogicBuild logicBuild = (LogicBlock.LogicBuild) Groups.build.find(building -> {
-                                if(building instanceof LogicBlock.LogicBuild build) {
-                                    return build.tag != null && build.tag.equals(fileName);
-                                }
 
-                                return false;
-                            });
-
-                            Log.info("[MlogWatcher] updating logic by name " + fileName);
 
                             if(Core.settings.getBool(Constants.Settings.mlogWatchByNameOn)) {
-                                ProcessorUpdater.insertLogic(logicBuild, asmCode);
+                                Log.info("[MlogWatcher] updating logic by name " + fileName);
+
+                                outer: for(int x = 0; x < Vars.world.tiles.width; x++){
+                                    for(int y = 0; y < Vars.world.tiles.height; y++){
+                                        Tile tile = Vars.world.tiles.get(x, y);
+
+                                        if(tile.isCenter() && tile.build instanceof LogicBlock.LogicBuild logicBuild && logicBuild.tag != null && logicBuild.tag.equals(fileName)) {
+                                            Log.info("[MlogWatcher] found " + logicBuild);
+
+                                            boolean prev = state.rules.editor;
+
+                                            state.rules.editor = true;
+                                            ProcessorUpdater.insertLogic(logicBuild, asmCode);
+                                            state.rules.editor = prev;
+
+                                            Reflect.invoke((MapProcessorsDialog) Reflect.get((MapInfoDialog) Reflect.get(Vars.ui.editor, "infoDialog"), "processors"), "rebuild");
+
+                                            break outer;
+                                        }
+                                    }
+                                }
                             } else {
                                 ProcessorUpdater.insertLogic(asmCode);
                             }
