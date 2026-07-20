@@ -5,7 +5,7 @@ The mod provides a WebSocket API, which can be used to update logic processors a
 The WebSocket server runs on port `9992` by default, but this can be changed in the configuration. The most recent interface runs on the `/v1` path. For connecting to a game running on a local computer, use the `localhost:9992/v1` URL. (It is also possible to connect to a game running on another device, assuming the connection can be made and isn't blocked by a firewall.)
 
 > [!NOTE]
-> When no path is specified in the URL, the [legacy API](#legacy-api) is used. When any other path is specified, the server doesn't process or respond to the request.
+> When no path is specified in the URL, the [legacy API](#legacy-api) is used. When any path other than `/v1` is specified, the server doesn't process or respond to the request.
 
 The API uses JSON for communication. An instance of the [`Request` class](CLASSES.md#class-request) must be sent to the server. The class has the following attributes:
 
@@ -29,6 +29,7 @@ When `status` is set to `error`, the result type will be set to `text_result`. T
  * `invalid_program_id`: the [program id](CLASSES.md#class-programid) specified in the request is invalid.
  * `invalid_version_selection`: the [version selection]() specified in the request is invalid.
  * `no_processor_attached`: no logic processor was selected in the game.
+ * `code_size_too_large`: the code would cause the processor's configuration size limit to be exceeded.
  * `no_active_map`: no map is currently loaded in the game.
  * `no_processors_found`: no logic processor matching the selection criteria was found.
  * `schematic_import_failed`: the schematic couldn't be imported (possibly because the schematic content is corrupted).
@@ -92,6 +93,7 @@ This method finds all compatible processors on the map and injects the provided 
     * `updated`: the processor was updated successfully.
     * `incompatible_version`: the processor's version number was not matched by `version_selection`.
     * `missing_program_id`: the processor has no program ID at all.
+    * `code_size_too_large`: the code would cause the processor's configuration size limit to be exceeded.
 
 Processors with valid, but not matching program IDs are not included in the response.
 
@@ -179,7 +181,7 @@ Upon error, an `error` response is sent. Errors pertaining to this method are:
 ## Legacy API
 
 > [!NOTE]
-> Do not use the legacy API for new developments. This API is not safe, as the received messages are sent directly to the selected processor without any validations, possibly overwriting the processor's code with incorrect data. 
+> Do not use the legacy API for new development. This API is not safe, as the received messages are sent directly to the selected processor without any validations, possibly overwriting the processor's code with incorrect data. 
 
 The legacy API represents the Websocket interface provided by earlier versions of the mod. It is invoked when no path is specified in the URL.
 

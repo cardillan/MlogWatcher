@@ -15,8 +15,8 @@ public class UpdateSelectedProcessorHandler implements MethodHandler {
 
         try {
             UpdateSelectedProcessorParams params = request.getParams();
-            boolean success = ProcessorUpdater.insertLogic(params.getCode());
-            return success ? Response.success() : Response.error(Response.ERR_NO_PROCESSOR_ATTACHED);
+            String result = ProcessorUpdater.insertLogic(params.getCode());
+            return Response.fromResult(result);
         } catch (ClassCastException e) {
             Log.err("[MlogWatcher] unexpected type of parameters", e);
         } catch (IllegalAccessError e) {

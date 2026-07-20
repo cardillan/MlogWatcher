@@ -174,6 +174,6 @@ public class Settings {
     }
 
     private static String numberOfSchematicsText() {
-        return Core.bundle.get(Constants.DirectBundles.numberOfSchematics) + SchematicsUpdater.numberOfSchematics();
+        return Core.bundle.format(Constants.DirectBundles.numberOfSchematics, SchematicsUpdater.numberOfSchematics());
     }
 }

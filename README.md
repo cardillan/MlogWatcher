@@ -23,7 +23,7 @@ To select a processor, tap on it. A golden diamond is drawn around/on a selected
 
 ### Schematics
 
-Schematic needs to be stored in binary format in files having the `.msch` extension. When such a file is created or updated in the watched directory and contains a valid schematic, the schematic is loaded, and `MlogWatcher` tag is added to the schematic, and the schematic is stored in the library. If a schematic with an identical name containing the `MlogWatcher` tag already exists in the library, it is replaced by the imported schematic. Otherwise, the imported schematic is added to the library; if a schematic with the same name already exists, the new one is placed alongside the existing one.
+Schematic needs to be stored in binary format in files having the `.msch` extension. When such a file is created or updated in the watched directory and contains a valid schematic, the schematic is loaded, the `MlogWatcher` tag is added to the schematic, and the schematic is stored in the library. If a schematic with an identical name containing the `MlogWatcher` tag already exists in the library, it is replaced by the imported schematic. Otherwise, the imported schematic is added to the library; if a schematic with the same name already exists, the new one is placed alongside the existing one.
 
 Schematics are updated regardless of the state of the game. When the game is running, only a message is briefly shown in the game. When the game is paused or not active at all, the imported schematic is shown on screen.
 
