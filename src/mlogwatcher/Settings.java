@@ -8,8 +8,11 @@ import arc.scene.ui.Label;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import arc.util.Structs;
 import mindustry.Vars;
 import mindustry.gen.Icon;
+import mindustry.ui.FileChooser;
+import mindustry.ui.dialogs.FileChooserDialog;
 import mlogwatcher.ui.ProcessorIdLabel;
 import mlogwatcher.websocket.MlogServer;
 
@@ -41,12 +44,16 @@ public class Settings {
                     c -> FileWatcher.restartWatcherThread());
 
             button(t, Constants.Bundles.settingMlogSelectButton, () ->
-                    Vars.platform.showFileChooser(true, Constants.Bundles.settingFileChooserTitle, "*", fi -> {
-                        String path = fi.parent().absolutePath();
-                        Core.settings.put(Constants.Settings.mlogPath, path);
-                        FileWatcher.restartWatcherThread();
-                        watchedDirectory.setText(path);
-                    }));
+                    new FileChooserDialog(
+                            Constants.Bundles.settingFileChooserTitle,
+                            file -> true,
+                            true,
+                            fi -> {
+                                String path = fi.parent().absolutePath();
+                                Core.settings.put(Constants.Settings.mlogPath, path);
+                                FileWatcher.restartWatcherThread();
+                                watchedDirectory.setText(path);
+                            }).show());
 
             extension(t, Constants.Settings.mlogExtension, Constants.Bundles.settingMlogExtensionInputLabel);
             extension(t, Constants.Settings.mschExtension, Constants.Bundles.settingMschExtensionInputLabel);
