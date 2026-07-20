@@ -20,6 +20,7 @@ public class Constants {
         public static final String settingFileChooserTitle = "@mlogwatcher.setting.fileChooserTitle";
         public static final String settingMlogExtensionInputLabel = "@mlogwatcher.setting.mlogExtensionInputLabel";
         public static final String settingMschExtensionInputLabel = "@mlogwatcher.setting.mschExtensionInputLabel";
+        public static final String settingMlogWatchByNameOn = "@mlogwatcher.setting.mlogWatchByNameOn";
         public static final String settingNoExt = "@mlogwatcher.setting.noExtension";
         public static final String settingRestartFileWatcherButton = "@mlogwatcher.setting.restartFileWatcherButton";
 
@@ -42,6 +43,7 @@ public class Constants {
         public static final String mlogPath = "mlogwatcher-mlog-path";
         public static final String mlogExtension = "mlogwatcher-mlog-extension";
         public static final String mschExtension = "mlogwatcher-msch-extension";
+        public static final String mlogWatchByNameOn = "mlogwatcher-mlog-watch-by-name-on";
         public static final String websocketPort = "mlogwatcher-websocket-port";
         public static final String ignoreServerBindError = "mlogwatcher-ignore-websocket-error";
         public static final String legacyApiOff = "mlogwatcher-legacy-api-off";

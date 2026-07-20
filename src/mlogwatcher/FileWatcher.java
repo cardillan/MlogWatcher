@@ -1,8 +1,11 @@
 package mlogwatcher;
 
 import arc.Core;
+import arc.files.Fi;
 import arc.util.Log;
 import arc.util.Nullable;
+import mindustry.gen.Groups;
+import mindustry.world.blocks.logic.LogicBlock;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -47,22 +50,53 @@ class FileWatcherThread extends Thread {
     @Override
     public void run() {
         super.run();
+
         Path targetFilePath = FileSystems.getDefault().getPath(this.targetFilePath);
+
         try (final WatchService watchService = FileSystems.getDefault().newWatchService()) {
             targetFilePath.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+
             Log.info("[MlogWatcher] watching directory " + targetFilePath);
             Settings.updateWatcherStatus(true);
+
             while (true) {
                 final WatchKey watchKey = watchService.take();
+
                 for (WatchEvent<?> event : watchKey.pollEvents()) {
-                    String path = targetFilePath.resolve((Path)event.context()).toString();
-                    Log.info("[MlogWatcher] found modified file " + path);
-                    if (matchesExtension(path, Constants.Settings.mlogExtension)) {
+                    Path path = targetFilePath.resolve((Path)event.context());
+                    String pathName = path.toString();
+                    String fileName = pathName
+                            .substring(targetFilePath.toString().length() + 1)
+                            .split("\\.")[0]
+                            .replaceAll("\\\\", "/");
+
+                    Log.info("[MlogWatcher] found modified file " + pathName);
+
+                    if (matchesExtension(pathName, Constants.Settings.mlogExtension)) {
                         Log.info("[MlogWatcher] updating logic");
-                        Core.app.post(() -> ProcessorUpdater.insertLogicFromFile(path));
-                    } else if (matchesExtension(path, Constants.Settings.mschExtension)) {
+                        Core.app.post(() -> {
+                            String asmCode = Fi.get(pathName).readString();
+
+                            @Nullable
+                            LogicBlock.LogicBuild logicBuild = (LogicBlock.LogicBuild) Groups.build.find(building -> {
+                                if(building instanceof LogicBlock.LogicBuild build) {
+                                    return build.tag != null && build.tag.equals(fileName);
+                                }
+
+                                return false;
+                            });
+
+                            Log.info("[MlogWatcher] updating logic by name " + fileName);
+
+                            if(Core.settings.getBool(Constants.Settings.mlogWatchByNameOn)) {
+                                ProcessorUpdater.insertLogic(logicBuild, asmCode);
+                            } else {
+                                ProcessorUpdater.insertLogic(asmCode);
+                            }
+                        });
+                    } else if (matchesExtension(pathName, Constants.Settings.mschExtension)) {
                         Log.info("[MlogWatcher] updating schematics");
-                        Core.app.post(() -> SchematicsUpdater.importSchematicsFromFile(path));
+                        Core.app.post(() -> SchematicsUpdater.importSchematicsFromFile(pathName));
                     }
                 }
 

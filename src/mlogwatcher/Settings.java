@@ -8,10 +8,8 @@ import arc.scene.ui.Label;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
-import arc.util.Structs;
 import mindustry.Vars;
 import mindustry.gen.Icon;
-import mindustry.ui.FileChooser;
 import mindustry.ui.dialogs.FileChooserDialog;
 import mlogwatcher.ui.ProcessorIdLabel;
 import mlogwatcher.websocket.MlogServer;
@@ -57,6 +55,7 @@ public class Settings {
 
             extension(t, Constants.Settings.mlogExtension, Constants.Bundles.settingMlogExtensionInputLabel);
             extension(t, Constants.Settings.mschExtension, Constants.Bundles.settingMschExtensionInputLabel);
+            check(t, Constants.Settings.mlogWatchByNameOn, Constants.Bundles.settingMlogWatchByNameOn);
 
             button(t, Constants.Bundles.settingRestartFileWatcherButton, FileWatcher::restartWatcherThread);
 
@@ -103,6 +102,7 @@ public class Settings {
                 Core.settings.remove(Constants.Settings.mlogPath);
                 Core.settings.remove(Constants.Settings.mlogExtension);
                 Core.settings.remove(Constants.Settings.mschExtension);
+                Core.settings.remove(Constants.Settings.mlogWatchByNameOn);
                 Core.settings.remove(Constants.Settings.websocketPort);
                 Core.settings.remove(Constants.Settings.ignoreServerBindError);
                 Core.settings.remove(Constants.Settings.legacyApiOff);
