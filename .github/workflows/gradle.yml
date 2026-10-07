@@ -14,17 +14,14 @@ jobs:
         uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
-          java-version: 17
+          java-version: '17'
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
 
-      - name: Install Android Build Tools
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Set up PATH
+      - name: Install Android SDK
         run: |
-          echo "$ANDROID_HOME/build-tools/35.0.0" >> $GITHUB_PATH
+          sdkmanager "platforms;android-35" "build-tools;35.0.0"
 
       - name: Verify Java and D8
         run: |
